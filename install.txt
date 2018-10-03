@@ -34,6 +34,7 @@ How to Release
 # Prepare Release
 #######################
 - edit changelog
+- update version in yasw.pro
 - make distclean working repository, rebuild in release, extensive test
   - insert images left and right
   - move images
@@ -51,9 +52,10 @@ How to Release
 # Build source tarball
 #######################
 # Tag the git repository
-git tag -a yasw_0.1 -m 'YASW version 0.1'
+VERSION=0.4
+git tag -a yasw_${VERSION} -m "YASW version ${VERSION}"
 # build the tarball (note: it contains files like .gitignore...)
-git archive --prefix=yasw_0.1/ yasw_0.1 | gzip > ../yasw_0.1.tgz
+git archive --prefix=yasw_${VERSION}/ yasw_${VERSION} | gzip > ../yasw_${VERSION}.tgz
 # test archive (tar xvzf, qmake, make, ./yasw, play around)
 # publish the tag on github:
 git push --tags
@@ -68,7 +70,14 @@ make qt
 export PATH=/where MXE is installed/usr/bin:$PATH
 # Cross-compile YASW:
 cd <path to yasw root folder>
-make windows-build
-cd yasw\windows-build
+mkdir windows-build
+cd windows-build
 i686-pc-mingw32-qmake ../src/yasw.pro CONFIG+=static
 make
+# build archive
+VERSION=0.3
+mkdir yasw_${VERSION}_Windows
+cp release/yasw.exe yasw_${VERSION}_Windows/
+cp ../README yasw_${VERSION}_Windows/
+cp ../documentation/gpl.txt yasw_${VERSION}_Windows/
+zip -r yasw_${VERSION}_Windows.zip yasw_${VERSION}_Windows/

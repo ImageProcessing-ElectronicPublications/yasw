@@ -39,6 +39,10 @@ public:
     int rotation();
     void setRotation(int degrees);
 
+public slots:
+    void setBackgroundColor(QColor color);
+
+
 private slots:
     void on_rotateLeft_clicked();
     void on_rotateRight_clicked();

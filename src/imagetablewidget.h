@@ -42,11 +42,8 @@ public:
     void exportToFolder(QString folder);
     void exportToPdf(QString pdfFile);
 
-
 public slots:
     void currentItemChanged(QTableWidgetItem *newItem, QTableWidgetItem *previousItem);
-
-private slots:
     void insertImage();
     void insertEmptyImage();
     void imageUp();
@@ -63,6 +60,8 @@ private:
 
     void addImage(QString fileName, enum ImageSide side,
                   QMap<QString, QVariant> settings = QMap<QString, QVariant> ());
+    void appendImageToSide(QString fileName, ImageTableWidget::ImageSide side,
+                           QMap<QString, QVariant> settings);
     enum ImageTableUserRoles { ImagePreferences = Qt::UserRole,
                               ImageFileName
                             };

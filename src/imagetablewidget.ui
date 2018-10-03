@@ -126,7 +126,7 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
         <string>+</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="icons/icons.qrc">
          <normaloff>:/icons/tango-icon-theme/list-add.svg</normaloff>:/icons/tango-icon-theme/list-add.svg</iconset>
        </property>
       </widget>
@@ -140,7 +140,7 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
         <string/>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="icons/icons.qrc">
          <normaloff>:/icons/tango-icon-theme/document-new.svg</normaloff>:/icons/tango-icon-theme/document-new.svg</iconset>
        </property>
       </widget>
@@ -154,7 +154,7 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
         <string>up</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="icons/icons.qrc">
          <normaloff>:/icons/tango-icon-theme/go-up.svg</normaloff>:/icons/tango-icon-theme/go-up.svg</iconset>
        </property>
       </widget>
@@ -181,7 +181,7 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
         <string>remove</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="icons/icons.qrc">
          <normaloff>:/icons/tango-icon-theme/list-remove.svg</normaloff>:/icons/tango-icon-theme/list-remove.svg</iconset>
        </property>
       </widget>
@@ -195,7 +195,7 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
         <string>down</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="icons/icons.qrc">
          <normaloff>:/icons/tango-icon-theme/go-down.svg</normaloff>:/icons/tango-icon-theme/go-down.svg</iconset>
        </property>
       </widget>
@@ -212,7 +212,7 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
    <item row="3" column="0">
     <widget class="QLabel" name="settingPolicyLabel">
      <property name="text">
-      <string>Propage image settings</string>
+      <string>Propage changes within the side</string>
      </property>
     </widget>
    </item>
@@ -225,19 +225,21 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
      </item>
      <item>
       <property name="text">
-       <string>To all following images</string>
+       <string>To all following images of the side</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>To all images</string>
+       <string>To all images of the side</string>
       </property>
      </item>
     </widget>
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="icons/icons.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>add</sender>

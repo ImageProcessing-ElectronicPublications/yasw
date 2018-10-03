@@ -17,6 +17,8 @@
 
 # Disable warning about non-static data member initializers.
 # No idea if this works on other platforms, old platforms will probably do not support it.
+DEFINES += "VERSION=0.4"
+
 QMAKE_CXXFLAGS += -std=c++11
 TARGET = yasw
 TEMPLATE = app
@@ -38,7 +40,10 @@ SOURCES += main.cpp \
     filter/cropping/croppingcorner.cpp \
     filter/dekeystoning/dekeystoningline.cpp \
     filter/dekeystoning/dekeystoningcorner.cpp \
-    imagetablewidget.cpp
+    imagetablewidget.cpp \
+    filter/scaling/scaling.cpp \
+    preferencesdialog.cpp \
+    filter/scaling/scalingwidget.cpp
 HEADERS += mainwindow.h \
     filter/basefilter.h \
     filter/basefiltergraphicsview.h \
@@ -56,23 +61,31 @@ HEADERS += mainwindow.h \
     filter/cropping/croppingcorner.h \
     filter/dekeystoning/dekeystoningline.h \
     filter/dekeystoning/dekeystoningcorner.h \
-    imagetablewidget.h
+    imagetablewidget.h \
+    filter/scaling/scaling.h \
+    preferencesdialog.h \
+    filter/scaling/scalingwidget.h
 FORMS += mainwindow.ui \
     filter/basefilterwidget.ui \
     filter/dekeystoning/dekeystoningwidget.ui \
     filter/rotation/rotationwidget.ui \
     filter/cropping/croppingwidget.ui \
-    imagetablewidget.ui
+    imagetablewidget.ui \
+    preferencesdialog.ui \
+    filter/scaling/scalingwidget.ui
 INCLUDEPATH += filter \
     filter/dekeystoning \
     filter/rotation \
-    filter/cropping
+    filter/cropping \
+    filter/scaling
 RESOURCES += icons/icons.qrc
 
 OTHER_FILES += \
     ../documentation/doxygen-mainpage.txt \
     ../changelog.txt \
-    ../install.txt
+    ../install.txt \
+    ../documentation/gpl.txt \
+    ../README
 
 static {
 # Everything below takes effect with CONFIG += static
@@ -82,3 +95,4 @@ static {
     DEFINES += STATIC
     message ("This is a static build")
 }
+

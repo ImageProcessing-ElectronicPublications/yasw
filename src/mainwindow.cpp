@@ -23,6 +23,7 @@
 #include <QFileInfo>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QColor>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -35,11 +36,31 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->imageList->setFilterContainer(ui->filterContainer);
 
     showMaximized();
+
+    settings = new QSettings("yasw", "yasw");
+    /* update recent projects menu */
+    addRecentProject("");
+
+    preferencesDialog = new PreferencesDialog();
+
+    /* Transmit global preferences changes to the filter container.
+       The filter container will retransmit the changes to the filter who subscribed to its signal
+       NOTE: next time a preference is added, englobe all signals into a global "preferences changed"
+             one: this is to much handwork.
+    */
+    connect(preferencesDialog, SIGNAL(selectionColorChanged(QColor)),
+            ui->filterContainer, SLOT(setSelectionColor(QColor)));
+    connect(preferencesDialog, SIGNAL(backgroundColorChanged(QColor)),
+            ui->filterContainer, SLOT(setBackgroundColor(QColor)));
+
+    preferencesDialog->setSettings(settings);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete settings;
+    delete preferencesDialog;
 }
 
 void MainWindow::changeEvent(QEvent *e)
@@ -114,34 +135,61 @@ bool MainWindow::saveProjectSettings(QString fileName)
                           );
     return false;
 }
+/* \Brief Sets the current project name in the title bar and inserts it to the recent projects.
 
+    It also saves the current project file name in the property projectFileName for other usages.
+*/
 void MainWindow::setProjectFileName(QString fileName)
 {
     QFileInfo fi(fileName);
 
-    projectFileName = fileName;
+    this->projectFileName = fileName;
 
-    if (fileName.length() > 0)
+    if (fileName.length() > 0) {
         setWindowTitle(tr("yasw - %1").arg(fi.fileName()));
+        addRecentProject(fileName);
+    }
     else
         setWindowTitle(tr("yasw - new project"));
 }
 
+void MainWindow::addRecentProject(QString fileName)
+{
+    QStringList recentProjects;
+    recentProjects = settings->value("recent_projects").toStringList();
 
-/** \brief Open a project from file
- // FIXME: Load and Check QStream version and yasw Version
- */
+    // If we have a "valid" filename, update the list; else just update the menu
+    //NOTE: perhaps the menu update thing should be done in a separate function
+    if (fileName.size() > 0) {
+        /* remove the file from the list to avoid duplicates */
+        recentProjects.removeAll(fileName);
+        recentProjects.prepend(fileName);
+    }
 
-void MainWindow::on_action_Open_triggered()
+    /* reduce size of list to MAX_RECENT_PROJECTS */
+    while (recentProjects.size() > MAX_RECENT_PROJECTS)
+        recentProjects.removeLast();
+
+    settings->setValue("recent_projects", recentProjects);
+
+    ui->recentProjects->clear();
+
+    if (recentProjects.size() == 0) {
+        ui->recentProjects->setEnabled(false);
+    } else {
+        ui->recentProjects->setEnabled(true);
+        QAction *action;
+        QString project;
+        foreach (project, recentProjects) {
+            action = ui->recentProjects->addAction(project);
+            connect(action, SIGNAL(triggered()), this, SLOT(openRecentProject()));
+        }
+    }
+}
+
+void MainWindow::loadProject(QString fileName)
 {
     QMap<QString, QVariant> settings;
-
-    QString fileName = QFileDialog::getOpenFileName(this,
-                        tr("Choose project"),
-                        QDir::currentPath(),   // FIXME: save last path
-                        tr("yasw projects (*.yasw);;All files (* *.*"));
-    if (fileName.length() == 0) // Cancel pressed
-        return;
 
     QFile file(fileName);
     if (file.open(QIODevice::ReadOnly)) {
@@ -152,6 +200,25 @@ void MainWindow::on_action_Open_triggered()
     setProjectFileName(fileName);
 
     ui->imageList->setSettings(settings);
+}
+
+
+/** \brief Open a project from file
+ // FIXME: Load and Check QStream version and yasw Version
+ */
+
+void MainWindow::on_action_Open_triggered()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+                        tr("Choose project"),
+                        QDir::currentPath(),   // FIXME: save last path
+                        tr("yasw projects (*.yasw);;All files (* *.*"));
+    if (fileName.length() == 0) // Cancel pressed
+        return;
+
+    loadProject(fileName);
+
+
 }
 
 
@@ -198,4 +265,40 @@ void MainWindow::on_action_Close_triggered()
 {
     ui->imageList->clear();
     setProjectFileName("");
+}
+
+void MainWindow::on_action_About_triggered()
+{
+    QMessageBox::about(this, tr("Yet Another Scan Wizard Version %1").arg(VERSION),
+                       tr("Yet Another Scan Wizard (YASW) is an application used to correct images taken "
+                          "with a camera while scanning a book.\n\n"
+
+                          "YASW is written by Robert Cheramy <robert@cheramy.net>\n\n"
+
+                          "YASW is free software: you can redistribute it and/or modify "
+                          "it under the terms of the GNU General Public License as published by "
+                          "the Free Software Foundation, either version 3 of the License, or "
+                          "(at your option) any later version.\n"
+
+                          "YASW is distributed in the hope that it will be useful, "
+                          "but WITHOUT ANY WARRANTY; without even the implied warranty of "
+                          "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
+                          "GNU General Public License for more details.\n"
+
+                          "You should have received a copy of the GNU General Public License "
+                          "along with YASW.  If not, see <http://www.gnu.org/licenses/>.\n\n"
+
+                          "YASW uses icons from the Tango Theme, which is in the public domain."));
+}
+
+void MainWindow::openRecentProject()
+{
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (action)
+        loadProject(action->text());
+}
+
+void MainWindow::on_action_Preferences_triggered()
+{
+    preferencesDialog->exec();
 }

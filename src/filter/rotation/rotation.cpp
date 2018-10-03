@@ -23,6 +23,12 @@ Rotation::Rotation(QObject * parent) : BaseFilter(parent)
     widget = new RotationWidget();
     filterWidget = widget;
     connect(widget, SIGNAL(rotationChanged()), this, SLOT(recalculate()));
+    if (parent) {
+        /* Connect slots to the filtercontainer */
+        connect(parent, SIGNAL(backgroundColorChanged(QColor)),
+                widget, SLOT(setBackgroundColor(QColor)));
+    }
+
 }
 
 /** \brief Returns a universal name for this filter.

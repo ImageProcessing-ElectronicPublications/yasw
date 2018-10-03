@@ -36,8 +36,9 @@ RotationWidget::~RotationWidget()
 void RotationWidget::setPixmap(QPixmap pixmap)
 {
     inputPixmap = pixmap;
-    if (!preview())
+    if (!preview()) {
         ui->view->setPixmap(pixmap);
+    }
 }
 
 void RotationWidget::setPreview(QPixmap pixmap)
@@ -88,4 +89,9 @@ void RotationWidget::setRotation(int degrees)
     /* If the rotation angle is not 0, 90, 180 or 270, someone tempered with the project file
        and knows what (s)he is dooing, so we don't check */
     rotationAngle = degrees;
+}
+
+void RotationWidget::setBackgroundColor(QColor color)
+{
+    ui->view->setBackgroundBrush(QBrush(color));
 }

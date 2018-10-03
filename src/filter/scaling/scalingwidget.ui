@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ScalingWidget</class>
+ <widget class="QWidget" name="ScalingWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>621</width>
+    <height>476</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,0,1,0">
+   <item row="0" column="0">
+    <widget class="QCheckBox" name="enable">
+     <property name="text">
+      <string>Enable Filter</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QCheckBox" name="preview">
+     <property name="text">
+      <string>Preview</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>216</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="0" rowspan="2" colspan="3">
+    <widget class="BaseFilterGraphicsView" name="view"/>
+   </item>
+   <item row="1" column="3">
+    <layout class="QGridLayout" name="gridLayout" columnminimumwidth="0,100,0,70">
+     <item row="1" column="0">
+      <widget class="QLabel" name="labelWidth">
+       <property name="text">
+        <string>Width:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="imageWidth"/>
+     </item>
+     <item row="2" column="2" colspan="2">
+      <widget class="QLabel" name="calculatedHeight"/>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="labelDPI">
+       <property name="text">
+        <string>DPI:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="labelHeight">
+       <property name="text">
+        <string>Height:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2" colspan="2">
+      <widget class="QLabel" name="calculatedWidth"/>
+     </item>
+     <item row="0" column="3">
+      <widget class="QComboBox" name="dpi">
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+       <item>
+        <property name="text">
+         <string>150</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>300</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>600</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="imageHeight"/>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="unit">
+       <item>
+        <property name="text">
+         <string>pixel</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>milimeter</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>inch</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="labelUnit">
+       <property name="text">
+        <string>Unit:</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="3">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>317</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>BaseFilterGraphicsView</class>
+   <extends>QGraphicsView</extends>
+   <header>basefiltergraphicsview.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>imageWidth</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>ScalingWidget</receiver>
+   <slot>slotPropertyChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>579</x>
+     <y>109</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>440</x>
+     <y>6</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>imageHeight</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>ScalingWidget</receiver>
+   <slot>slotPropertyChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>579</x>
+     <y>156</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>453</x>
+     <y>164</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dpi</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>ScalingWidget</receiver>
+   <slot>slotPropertyChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>510</x>
+     <y>69</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>521</x>
+     <y>207</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>slotPropertyChanged()</slot>
+ </slots>
+</ui>

@@ -19,11 +19,19 @@
 #include "cropping.h"
 
 //TODO: add a settings box to set size of resulting image.
-Cropping::Cropping()
+Cropping::Cropping(QObject *parent)
 {
     widget = new CroppingWidget();
     filterWidget = widget;
     connect(widget, SIGNAL(rectangleChanged()), this, SLOT(recalculate()));
+
+    if (parent) {
+        /* Connect slots to the filtercontainer */
+        connect(parent, SIGNAL(selectionColorChanged(QColor)),
+                widget, SLOT(setSelectionColor(QColor)));
+        connect(parent, SIGNAL(backgroundColorChanged(QColor)),
+                widget, SLOT(setBackgroundColor(QColor)));
+    }
 }
 
 void Cropping::recalculate() {

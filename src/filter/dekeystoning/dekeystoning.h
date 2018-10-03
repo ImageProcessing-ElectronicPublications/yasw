@@ -26,7 +26,7 @@ class Dekeystoning : public BaseFilter
 {
     Q_OBJECT
 public:
-    Dekeystoning();
+    Dekeystoning(QObject * parent = 0);
     AbstractFilterWidget* getWidget();
     QString getIdentifier();
     QString getName();

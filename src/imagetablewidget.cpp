@@ -26,6 +26,12 @@
 #include "ui_imagetablewidget.h"
 
 //TODO: comment this file, most comments from the old imagelistwidget shall match
+/* FIXME: I am very unhapy with the design of this ImageTableWidget. This is a dirty
+   hack that has to be rewritten. It is a lot of work that noone sees but has to be
+   rewritten before nice features like drag&drop comme in play.
+   Layout has to be separated from Data, items have to become a dedicated widget
+   (ideas: filename under image, display source image or preview, infos with tooltip...)
+*/
 
 ImageTableWidget::ImageTableWidget(QWidget *parent) :
     QWidget(parent),
@@ -52,6 +58,7 @@ ImageTableWidget::~ImageTableWidget()
 void ImageTableWidget::setFilterContainer(FilterContainer *container)
 {
     if (filterContainer) {
+        Q_ASSERT ("Changing filterContainer. This should never occur !");
         disconnect(this, SIGNAL(pixmapChanged(QPixmap)),
                    filterContainer, SLOT(setImage(QPixmap)));
     }
@@ -67,7 +74,7 @@ void ImageTableWidget::setFilterContainer(FilterContainer *container)
 void ImageTableWidget::currentItemChanged(QTableWidgetItem *newItem, QTableWidgetItem *previousItem)
 {
     QMap<QString, QVariant> settings;
-    int rowPreviousItem, sidePreviousItem, i;
+    int fromRow, side, i;
 
     if (filterContainer && previousItem) {
         settings = filterContainer->getSettings();
@@ -77,19 +84,17 @@ void ImageTableWidget::currentItemChanged(QTableWidgetItem *newItem, QTableWidge
 
             // Propagate settings according to settings policy
             switch (ui->settingPolicy->currentIndex()) {
-                case 1: // propagate to all following images
-                    rowPreviousItem = ui->images->row(previousItem);
-                    sidePreviousItem = ui->images->column(previousItem);
-                    for (i = rowPreviousItem; i < itemCount[sidePreviousItem]; i++) {
-                        ui->images->item(i, sidePreviousItem)->setData(ImagePreferences, settings);
+                case 1: // propagate to all following images in this side
+                    fromRow = ui->images->row(previousItem);
+                    side = ui->images->column(previousItem);
+                    for (i = fromRow; i < itemCount[side]; i++) {
+                        ui->images->item(i, side)->setData(ImagePreferences, settings);
                     }
                     break;
-                case 2: // propagate to all images
-                    for (i = 0; i < itemCount[leftSide]; i++) {
-                        ui->images->item(i, leftSide)->setData(ImagePreferences, settings);
-                    }
-                    for (i = 0; i < itemCount[rightSide]; i++) {
-                        ui->images->item(i, rightSide)->setData(ImagePreferences, settings);
+                case 2: // propagate to all images in this side
+                    side = ui->images->column(previousItem);
+                    for (i = 0; i < itemCount[side]; i++) {
+                        ui->images->item(i, side)->setData(ImagePreferences, settings);
                     }
                     break;
                 //case 0: do not propagate;
@@ -132,7 +137,9 @@ void ImageTableWidget::insertImage()
                         tr("Choose images"),
                         lastDir,
                         // FIXME: scaling down for *.png does not work as good as for jpg
-                        tr("Images (*.jpg *.png);;All files (* *.*)"));
+                        // FIXME: export fron png images don not work. Deactiving png for now.
+//                        tr("Images (*.jpg *.png);;All files (* *.*)"));
+                        tr("Images (*.jpg);;All files (* *.*)"));
 
     foreach (imageFileName, images) {
         if (moveSelectionDown) {
@@ -151,6 +158,9 @@ void ImageTableWidget::insertImage()
 
 }
 
+/** \brief inserts an image at the current selection on the given side.
+
+*/
 // FIXME: handle fileName = "" (empty image)
 void ImageTableWidget::addImage(QString fileName, ImageTableWidget::ImageSide side, QMap<QString, QVariant> settings)
 {
@@ -164,7 +174,7 @@ void ImageTableWidget::addImage(QString fileName, ImageTableWidget::ImageSide si
     //Alternatives: put some "waiting" dialog or do ICON-loading in the background
     icon = QPixmap(fileName).scaledToWidth(100);
     item = new QTableWidgetItem(QIcon(icon),
-                        fi.baseName());
+                        fi.fileName());
 
     // Adjust Table size if necessary
     if (itemCount[side] >=  ui->images->rowCount()) {
@@ -194,6 +204,33 @@ void ImageTableWidget::addImage(QString fileName, ImageTableWidget::ImageSide si
     // Select the inserted item
     ui->images->setCurrentItem(item);
     // scroll down to next item for order by multiple inserts?
+}
+
+/** \brief Appends an image at the end of the Table
+
+*/
+void ImageTableWidget::appendImageToSide(QString fileName,
+                                         ImageTableWidget::ImageSide side,
+                                         QMap<QString, QVariant> settings)
+{
+    QTableWidgetItem *item;
+    QPixmap icon;
+    QFileInfo fi(fileName);
+
+    icon = QPixmap(fileName).scaledToWidth(100);
+    item = new QTableWidgetItem(QIcon(icon),
+                        fi.fileName());
+    // Adjust Table size if necessary
+    if (itemCount[side] >=  ui->images->rowCount()) {
+        ui->images->setRowCount(itemCount[side] + 1);
+    }
+    ui->images->setItem(itemCount[side], side, item);
+    item->setData(ImageFileName, fileName);
+    item->setData(ImagePreferences, settings);
+    item->setToolTip(fileName);
+    itemCount[side] = itemCount[side] + 1;
+
+    ui->images->setCurrentItem(item);
 }
 
 void ImageTableWidget::insertEmptyImage()
@@ -325,7 +362,7 @@ void ImageTableWidget::setSettings(QMap<QString, QVariant> settings)
         }
         filename = key.section("_", 2);
         if (row >= 0 && filename.length() > 0) {
-            addImage(filename, side, settings[key].toMap());
+            appendImageToSide(filename, side, settings[key].toMap());
         }
     }
 }
@@ -363,30 +400,58 @@ void ImageTableWidget::exportToFolder(QString folder)
 
 void ImageTableWidget::exportToPdf(QString pdfFile)
 {
-    //NOTE: this is duplicated code, this is bad, is it ?
     int row;
+    bool firstPage = true;
     QTableWidgetItem *currentItem = ui->images->currentItem();
     QPixmap pixmap;
     QPainter painter;
+    QMap<QString, QVariant> imageSize;
 
     QPrinter *printer = new QPrinter();
     printer->setOutputFormat(QPrinter::PdfFormat);
+    printer->setFullPage(true);
     printer->setOutputFileName(pdfFile);
 
-    painter.begin(printer);
 
-    //FIXME: we should export event and odd for every row
-    for (row = 0; row < itemCount[leftSide]; row++) {
-        ui->images->setCurrentCell(row, leftSide);
-        pixmap = filterContainer->getResultImage();
-        painter.drawPixmap(printer->pageRect(), pixmap);
-        printer->newPage();
-    }
-    for (row = 0; row < itemCount[rightSide]; row++) {
-        ui->images->setCurrentCell(row, rightSide);
-        pixmap = filterContainer->getResultImage();
-        painter.drawPixmap(printer->pageRect(), pixmap);
-        printer->newPage();
+    for (row = 0; row < qMax(itemCount[leftSide], itemCount[rightSide]); row++) {
+        // left Side
+        if (row < itemCount[leftSide]) {       // is one item availabla at this row?
+            ui->images->setCurrentCell(row, leftSide);
+            pixmap = filterContainer->getResultImage();
+
+            /* set Paper size from the scaling Filter */
+            imageSize = filterContainer->getImageSize();
+            printer->setPaperSize(QSize(imageSize["size"].toSize()),
+                                  static_cast<QPrinter::Unit>(imageSize["unit"].toInt()));
+
+            // we don't need a new page for the first page or we would have a blank page
+            if (firstPage == true) {
+                firstPage = false;
+                painter.begin(printer);
+            } else {
+                printer->newPage();
+            }
+            painter.drawPixmap(printer->pageRect(), pixmap);
+        }
+        // right side
+        if (row < itemCount[rightSide]) {       // is one item availabla at this row?
+            ui->images->setCurrentCell(row, rightSide);
+            pixmap = filterContainer->getResultImage();
+
+            /* set Paper size from the scaling Filter */
+            imageSize = filterContainer->getImageSize();
+            printer->setPaperSize(QSize(imageSize["size"].toSize()),
+                                  static_cast<QPrinter::Unit>(imageSize["unit"].toInt()));
+
+            // we don't need a new page for the first page or we would have a blank page
+            if (firstPage == true) {
+                firstPage = false;
+                painter.begin(printer);
+            } else {
+                printer->newPage();
+            }
+            painter.drawPixmap(printer->pageRect(), pixmap);
+        }
     }
 
     painter.end();

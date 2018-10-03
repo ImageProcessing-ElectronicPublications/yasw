@@ -18,12 +18,23 @@
  */
 #include "dekeystoning.h"
 #include <QDebug>
+#include <QColor>
 
-Dekeystoning::Dekeystoning()
+Dekeystoning::Dekeystoning(QObject *parent)
 {
     widget = new DekeystoningWidget();
     filterWidget = widget;
     connect(widget, SIGNAL(polygonChanged()), this, SLOT(recalculate()));
+
+
+    if (parent) {
+        /* Connect slots to the filtercontainer */
+        connect(parent, SIGNAL(selectionColorChanged(QColor)),
+                widget, SLOT(setSelectionColor(QColor)));
+        connect(parent, SIGNAL(backgroundColorChanged(QColor)),
+                widget, SLOT(setBackgroundColor(QColor)));
+
+    }
 }
 
 /** \brief Returns a universal name for this filter.

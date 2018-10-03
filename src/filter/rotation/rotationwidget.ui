@@ -34,7 +34,7 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
    <locale language="English" country="UnitedKingdom"/>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="3">
+   <item row="0" column="0">
     <widget class="QCheckBox" name="enable">
      <property name="text">
       <string>Enable Filter</string>
@@ -44,13 +44,41 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
      </property>
     </widget>
    </item>
-   <item row="0" column="3">
+   <item row="0" column="1">
     <widget class="QCheckBox" name="preview">
      <property name="text">
       <string>Preview</string>
      </property>
      <property name="checked">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QToolButton" name="rotateLeft">
+     <property name="toolTip">
+      <string>Rotate the image counterclockwise</string>
+     </property>
+     <property name="text">
+      <string>rotate counterclockwise</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../icons/icons.qrc">
+       <normaloff>:/icons/tango-icon-theme/edit-undo.svg</normaloff>:/icons/tango-icon-theme/edit-undo.svg</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <widget class="QToolButton" name="rotateRight">
+     <property name="toolTip">
+      <string>Rotate the image clockwise</string>
+     </property>
+     <property name="text">
+      <string>rotate clockwise</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../icons/icons.qrc">
+       <normaloff>:/icons/tango-icon-theme/edit-redo.svg</normaloff>:/icons/tango-icon-theme/edit-redo.svg</iconset>
      </property>
     </widget>
    </item>
@@ -69,34 +97,6 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
    </item>
    <item row="1" column="0" colspan="5">
     <widget class="BaseFilterGraphicsView" name="view"/>
-   </item>
-   <item row="2" column="0">
-    <widget class="QToolButton" name="rotateLeft">
-     <property name="toolTip">
-      <string>Rotate the image counterclockwise</string>
-     </property>
-     <property name="text">
-      <string>rotate counterclockwise</string>
-     </property>
-     <property name="icon">
-      <iconset resource="../../icons/icons.qrc">
-       <normaloff>:/icons/tango-icon-theme/edit-undo.svg</normaloff>:/icons/tango-icon-theme/edit-undo.svg</iconset>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QToolButton" name="rotateRight">
-     <property name="toolTip">
-      <string>Rotate the image clockwise</string>
-     </property>
-     <property name="text">
-      <string>rotate clockwise</string>
-     </property>
-     <property name="icon">
-      <iconset resource="../../icons/icons.qrc">
-       <normaloff>:/icons/tango-icon-theme/edit-redo.svg</normaloff>:/icons/tango-icon-theme/edit-redo.svg</iconset>
-     </property>
-    </widget>
    </item>
   </layout>
  </widget>

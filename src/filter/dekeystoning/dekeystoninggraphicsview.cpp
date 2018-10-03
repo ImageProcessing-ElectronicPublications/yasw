@@ -52,6 +52,35 @@ DekeystoningGraphicsView::DekeystoningGraphicsView(QWidget *parent):
     scene->addItem(l2);
     scene->addItem(l3);
     scene->addItem(l4);
+
+    /* connect the corners together so they can move each other when Control is pressed */
+    connect(topLeftCorner, SIGNAL(moveOtherCorner(QPointF)),
+            topRightCorner, SLOT(moveCorner(QPointF)));
+    connect(topLeftCorner, SIGNAL(moveOtherCorner(QPointF)),
+            bottomRightCorner, SLOT(moveCorner(QPointF)));
+    connect(topLeftCorner, SIGNAL(moveOtherCorner(QPointF)),
+            bottomLeftCorner, SLOT(moveCorner(QPointF)));
+
+    connect(topRightCorner, SIGNAL(moveOtherCorner(QPointF)),
+            topLeftCorner, SLOT(moveCorner(QPointF)));
+    connect(topRightCorner, SIGNAL(moveOtherCorner(QPointF)),
+            bottomRightCorner, SLOT(moveCorner(QPointF)));
+    connect(topRightCorner, SIGNAL(moveOtherCorner(QPointF)),
+            bottomLeftCorner, SLOT(moveCorner(QPointF)));
+
+    connect(bottomRightCorner, SIGNAL(moveOtherCorner(QPointF)),
+            topRightCorner, SLOT(moveCorner(QPointF)));
+    connect(bottomRightCorner, SIGNAL(moveOtherCorner(QPointF)),
+            topLeftCorner, SLOT(moveCorner(QPointF)));
+    connect(bottomRightCorner, SIGNAL(moveOtherCorner(QPointF)),
+            bottomLeftCorner, SLOT(moveCorner(QPointF)));
+
+    connect(bottomLeftCorner, SIGNAL(moveOtherCorner(QPointF)),
+            topLeftCorner, SLOT(moveCorner(QPointF)));
+    connect(bottomLeftCorner, SIGNAL(moveOtherCorner(QPointF)),
+            bottomRightCorner, SLOT(moveCorner(QPointF)));
+    connect(bottomLeftCorner, SIGNAL(moveOtherCorner(QPointF)),
+            topRightCorner, SLOT(moveCorner(QPointF)));
 }
 
 /*! cleen the allocated memory */
@@ -118,6 +147,24 @@ void DekeystoningGraphicsView::hidePolygon(bool hide)
     l2->setVisible(showPolygon);
     l3->setVisible(showPolygon);
     l4->setVisible(showPolygon);
+}
+
+/** \brief Changes the color of the corners and the line.
+
+  This slot is called when changing the selectionColor preference of yasw
+*/
+void DekeystoningGraphicsView::setSelectionColor(QColor color)
+{
+    QPen pen = QPen(color);
+
+    topLeftCorner->setPen(pen);
+    topRightCorner->setPen(color);
+    bottomRightCorner->setPen(color);
+    bottomLeftCorner->setPen(color);
+    l1->setPen(color);
+    l2->setPen(color);
+    l3->setPen(color);
+    l4->setPen(color);
 }
 
 /** \brief Check if polygon moved since last resetPolygonMoved() */

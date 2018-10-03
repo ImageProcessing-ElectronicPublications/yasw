@@ -88,7 +88,16 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
     <property name="title">
      <string>&amp;Project</string>
     </property>
+    <widget class="QMenu" name="recentProjects">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="title">
+      <string>&amp;Recent projects</string>
+     </property>
+    </widget>
     <addaction name="action_Open"/>
+    <addaction name="recentProjects"/>
     <addaction name="action_Save"/>
     <addaction name="action_SaveAs"/>
     <addaction name="separator"/>
@@ -97,7 +106,7 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
    </widget>
    <widget class="QMenu" name="menu_Export">
     <property name="title">
-     <string>&amp;Export to</string>
+     <string>E&amp;xport to</string>
     </property>
     <addaction name="actionTo_Jpeg"/>
     <addaction name="actionTo_PDF"/>
@@ -112,9 +121,29 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
     <addaction name="actionMoveImageUp"/>
     <addaction name="actionMoveImageDown"/>
    </widget>
+   <widget class="QMenu" name="menu_Hilfe">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="action_About"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>&amp;</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menu_Edit">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="action_Preferences"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Image"/>
+   <addaction name="menu_Edit"/>
    <addaction name="menu_Export"/>
+   <addaction name="menu_Hilfe"/>
+   <addaction name="menuEdit"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="action_Quit">
@@ -199,6 +228,16 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
    </property>
    <property name="toolTip">
     <string>Adds an empty image at selection. If there is default selection, inserts left</string>
+   </property>
+  </action>
+  <action name="action_About">
+   <property name="text">
+    <string>&amp;About</string>
+   </property>
+  </action>
+  <action name="action_Preferences">
+   <property name="text">
+    <string>&amp;Preferences</string>
    </property>
   </action>
  </widget>

@@ -25,6 +25,7 @@
 #include <QString>
 #include "basefilter.h"
 #include "abstractfilterwidget.h"
+#include "scaling.h"
 
 class FilterContainer : public QTabWidget
 {
@@ -36,16 +37,26 @@ public:
     QMap<QString, QVariant> getSettings();
     void setSettings(QMap<QString, QVariant> settings);
     QPixmap getResultImage();
+    QMap<QString, QVariant> getImageSize();
 
 public slots:
     void tabChanged(int index);
     void setImage(QPixmap pixmap);
+    void setSelectionColor(QColor color);
+    void setBackgroundColor(QColor color);
+
 
 private:
-        QList<BaseFilter *> tabToFilter;
-        int oldIndex; //stores the last selected index
-        void updatePixmapInTabs(int beginTab = 1, int endTab = -1);
-        void updateCurrentTabPixmap(int fromIndex = 1);
-    };
+    QList<BaseFilter *> tabToFilter;
+    int oldIndex; //stores the last selected index
+    void updatePixmapInTabs(int beginTab = 1, int endTab = -1);
+    void updateCurrentTabPixmap(int fromIndex = 1);
+    Scaling *scalingFilter;
 
-    #endif // FILTERCONTAINER_H
+signals:
+    void selectionColorChanged(QColor color);
+    void backgroundColorChanged(QColor color);
+
+
+};
+#endif // FILTERCONTAINER_H

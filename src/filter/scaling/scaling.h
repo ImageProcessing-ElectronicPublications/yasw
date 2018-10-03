@@ -16,48 +16,28 @@
  * You should have received a copy of the GNU General Public License
  * along with YASW.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef DEKEYSTONINGWIDGET_H
-#define DEKEYSTONINGWIDGET_H
+#ifndef SCALING_H
+#define SCALING_H
 
-#include <QWidget>
-#include "abstractfilterwidget.h"
+#include "basefilter.h"
+#include "scalingwidget.h"
 
-namespace Ui {
-    class DekeystoningWidget;
-}
-
-class DekeystoningWidget : public AbstractFilterWidget {
-    Q_OBJECT
+class Scaling : public BaseFilter
+{
 public:
-    DekeystoningWidget(QWidget *parent = 0);
-    ~DekeystoningWidget();
-    void setPixmap(QPixmap pixmap);
-    void setPreview(QPixmap pixmap);
-    bool preview();
-    qreal meanWidth();
-    qreal meanHeight();
-    QPolygonF polygon();
-    bool polygonMoved();
-    void resetPolygonMoved();
+    Scaling(QObject * parent = 0);
+    AbstractFilterWidget* getWidget();
+    QString getIdentifier();
+    QString getName();
     QMap<QString, QVariant> getSettings();
     void setSettings(QMap <QString, QVariant> settings);
+private:
+    ScalingWidget *widget;
+    QTransform scalingMatrix;
 
 public slots:
-    void setSelectionColor(QColor color);
-    void setBackgroundColor(QColor color);
+    void recalculate();
 
-
-protected:
-    void changeEvent(QEvent *e);
-
-private:
-    Ui::DekeystoningWidget *ui;
-
-private slots:
-    void on_preview_toggled(bool checked);
-
-signals:
-    void polygonChanged();
 };
 
-#endif // DEKEYSTONINGWIDGET_H
+#endif // SCALING_H
