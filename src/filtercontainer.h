@@ -37,7 +37,8 @@ public:
     QMap<QString, QVariant> getSettings();
     void setSettings(QMap<QString, QVariant> settings);
     QPixmap getResultImage();
-    QMap<QString, QVariant> getImageSize();
+    QMap<QString, QVariant> getPageSize();
+    QString currentFilter();
 
 public slots:
     void tabChanged(int index);
@@ -56,6 +57,11 @@ private:
 signals:
     void selectionColorChanged(QColor color);
     void backgroundColorChanged(QColor color);
+    /** \brief Emited when a user changes the Tab
+
+      Used by imageTableWidget to propagate the settings to other images.
+    */
+    void filterChanged(QString oldFilterID);
 
 
 };

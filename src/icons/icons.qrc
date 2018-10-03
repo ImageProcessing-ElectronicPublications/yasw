@@ -7,5 +7,7 @@
         <file>tango-icon-theme/go-down.svg</file>
         <file>tango-icon-theme/go-up.svg</file>
         <file>tango-icon-theme/list-add.svg</file>
+        <file>tango-icon-theme/go-next.svg</file>
+        <file>tango-icon-theme/go-previous.svg</file>
     </qresource>
 </RCC>

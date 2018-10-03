@@ -31,6 +31,8 @@ public:
     QString getName();
     QMap<QString, QVariant> getSettings();
     void setSettings(QMap <QString, QVariant> settings);
+    qreal pageMilimeterHeight();
+    qreal pageMilimeterWidth();
 private:
     ScalingWidget *widget;
     QTransform scalingMatrix;

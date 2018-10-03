@@ -1,10 +1,10 @@
 ToDo / Roadmap
- - It may make sense to apply the changes from the Scaling Filter to all (left/right) images. Maybe
-   a button "apply to all images" in the filter wiget ?
- - I'm not happy with "apply to all". This applies every filter settings to al slides.
-   This may be dangerous!
+ - adapt pdf export
+ - separate scaling filter from layout filter -> one may want to sets the settings differently (typicaly layout for all images)
+ - checking "preview" on scaling widget does not calculate image
  - optimise YASW: selecting another (big) image lasts 1 second.
- - improve pdf output: compression level, page size...
+   o when loading a project, recalculate is called a lot of times. This should not be!
+   o when inserting an image, recalclate ist called twice. This should not be!
  - scaling filter: add padding sizes and/or page size
  - Filter to fix image color / convert to black & white...
    o add filter for color manipulation_/adjustment
@@ -14,7 +14,6 @@ ToDo / Roadmap
  - handle empty images (placeholder) differently
  - Load images for Icons in background
  - Implement disable filter
-   o Set image size, use it in pdf export.
    o disabling a filter (UI) should disable the rendering.
  - progress dialog while exporting / loading
  - Display page preview instead of original image in image list
@@ -30,7 +29,6 @@ ToDo / Roadmap
    o have a look at ppmunwarp http://diybookscanner.org/forum/viewtopic.php?f=19&t=2589
  - move image from left ro right
  - centralized .h header with includes and default values.
- - QPixmap::scaled: Pixmap is a null pixmap while loading
 User requests:
  - Add the ability to take a checkerboard pattern as input to the de-warping stage.
  - A way to measure DPI in-situ. Allow the user to draw a line on the pic and inform yasw that the
@@ -50,7 +48,19 @@ User requests:
       and the left of the images; I don't know if that's intentional or not, but I'd like to be able
       to turn it off.
 
-201306xx; YASW 0.4
+20130629; YASW 0.5 "release few but release often"
+ - Key shortcuts
+ - Redesign of the Scaling Filter Widget
+ - New policies for propagating changes. I'm not 100% happy as this is quite
+   complicated. But I have no other Idea for now... Closes #14
+ - Move am image between left and right column. Closes #13
+ - Move image selection with arrow keys. Closes #12
+ - Segfault when changing settings of a non existent image - Fixes #15
+ - QPixmap::scaled: Pixmap is a null pixmap while loading - Fixes #17
+ - Fixed #18 Inserted item is selected but does not apear in the filter select
+ - Fixed #10 Margins + Positioning
+
+20130601; YASW 0.4
  - Fixed Ticket #2 (Image order not retained when project is reloaded.)
  - Fixed Ticket #1 (Display FileName instead of BaseName in the image list)
  - Fixed Ticket #3 (Propagate settings to all images for one side)
@@ -64,7 +74,6 @@ User requests:
  - open -> recent projects
  - change selection color for dekeystoning and cropping
  - move all corners (dekeystonig, cropping) when pressing "control" while draging one of the corners
-
 
 20121118; YASW 0.2
  - export to pdf

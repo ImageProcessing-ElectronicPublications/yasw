@@ -17,7 +17,7 @@
 
 # Disable warning about non-static data member initializers.
 # No idea if this works on other platforms, old platforms will probably do not support it.
-DEFINES += "VERSION=0.4"
+DEFINES += "VERSION=0.5"
 
 QMAKE_CXXFLAGS += -std=c++11
 TARGET = yasw

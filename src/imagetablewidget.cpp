@@ -58,15 +58,16 @@ ImageTableWidget::~ImageTableWidget()
 void ImageTableWidget::setFilterContainer(FilterContainer *container)
 {
     if (filterContainer) {
-        Q_ASSERT ("Changing filterContainer. This should never occur !");
-        disconnect(this, SIGNAL(pixmapChanged(QPixmap)),
-                   filterContainer, SLOT(setImage(QPixmap)));
+        Q_ASSERT (false); // Changing filterContainer. This should never occur !
     }
 
     filterContainer = container;
 
     connect (this, SIGNAL(pixmapChanged(QPixmap)),
              filterContainer, SLOT(setImage(QPixmap)));
+    // When a new filter is selected, propagate the changes to other images
+    connect (filterContainer, SIGNAL(filterChanged(QString)),
+             this, SLOT(filterChanged(QString)));
 }
 
 
@@ -74,30 +75,59 @@ void ImageTableWidget::setFilterContainer(FilterContainer *container)
 void ImageTableWidget::currentItemChanged(QTableWidgetItem *newItem, QTableWidgetItem *previousItem)
 {
     QMap<QString, QVariant> settings;
+    QMap<QString, QVariant> oldSettings;
     int fromRow, side, i;
+    QString filterID = "";
 
     if (filterContainer && previousItem) {
         settings = filterContainer->getSettings();
+        oldSettings = previousItem->data(ImagePreferences).toMap();
         // settings changed? Save them!
-        if (settings != previousItem->data(ImagePreferences).toMap()) {
+        if (settings != oldSettings) {
             previousItem->setData(ImagePreferences, settings);
 
             // Propagate settings according to settings policy
-            switch (ui->settingPolicy->currentIndex()) {
-                case 1: // propagate to all following images in this side
-                    fromRow = ui->images->row(previousItem);
-                    side = ui->images->column(previousItem);
+            switch (ui->settingImagePolicy->currentIndex()) {
+            case 1: // propagate to all following images in this side
+                fromRow = ui->images->row(previousItem);
+                side = ui->images->column(previousItem);
+
+                switch (ui->settingFilterPolicy->currentIndex()) {
+                case 0: // propagate only selected filter
+                    filterID = filterContainer->currentFilter();
+                    for (i = fromRow; i < itemCount[side]; i++) {
+                        oldSettings = ui->images->item(i, side)->data(ImagePreferences).toMap();
+                        oldSettings[filterID] = settings[filterID];
+                        ui->images->item(i, side)->setData(ImagePreferences, oldSettings);
+                    }
+                    break;
+                case 1: // propagate all filter settings
                     for (i = fromRow; i < itemCount[side]; i++) {
                         ui->images->item(i, side)->setData(ImagePreferences, settings);
                     }
                     break;
-                case 2: // propagate to all images in this side
-                    side = ui->images->column(previousItem);
+                }
+                break;
+            case 2: // propagate to all images in this side
+                side = ui->images->column(previousItem);
+                switch (ui->settingFilterPolicy->currentIndex()) {
+                case 0: // propagate only selected filter
+                    filterID = filterContainer->currentFilter();
+                    for (i = 0; i < itemCount[side]; i++) {
+                        oldSettings = ui->images->item(i, side)->data(ImagePreferences).toMap();
+                        oldSettings[filterID] = settings[filterID];
+                        ui->images->item(i, side)->setData(ImagePreferences, oldSettings);
+                    }
+                    break;
+                case 1: // propagate all filter settings
                     for (i = 0; i < itemCount[side]; i++) {
                         ui->images->item(i, side)->setData(ImagePreferences, settings);
                     }
                     break;
-                //case 0: do not propagate;
+                }
+                break;
+//          default:
+//          case 0: // do not propagate;
             }
         }
     }
@@ -116,6 +146,61 @@ void ImageTableWidget::currentItemChanged(QTableWidgetItem *newItem, QTableWidge
     }
 }
 
+/* \brief Propagate settings to other images,
+   if the settings changed and if there is such a policy activated */
+void ImageTableWidget::filterChanged(QString oldFilterID)
+{
+    QMap<QString, QVariant> settings;
+    QMap<QString, QVariant> oldSettings;
+    QTableWidgetItem *item;
+    int fromRow, side, i;
+
+    settings = filterContainer->getSettings();
+    item = ui->images->currentItem();
+    if (item == NULL) { // There is no item under selection
+        return;
+    }
+    oldSettings = item->data(ImagePreferences).toMap();
+
+    if (settings[oldFilterID] == oldSettings[oldFilterID]) {
+        // do nothing
+        return;
+    }
+
+    // update old Settungs and save the changes
+    oldSettings[oldFilterID] = settings[oldFilterID];
+    item->setData(ImagePreferences, oldSettings);
+
+    // and propagate them according to the settings policy
+    switch (ui->settingImagePolicy->currentIndex()) {
+    case 1: // propagate to all following images in this side
+        fromRow = ui->images->row(item);
+        side = ui->images->column(item);
+
+        for (i = fromRow; i < itemCount[side]; i++) {
+            oldSettings = ui->images->item(i, side)->data(ImagePreferences).toMap();
+            oldSettings[oldFilterID] = settings[oldFilterID];
+            ui->images->item(i, side)->setData(ImagePreferences, oldSettings);
+        }
+        break;
+    case 2: // propagate to all images in this side
+        side = ui->images->column(item);
+        for (i = 0; i < itemCount[side]; i++) {
+            oldSettings = ui->images->item(i, side)->data(ImagePreferences).toMap();
+            oldSettings[oldFilterID] = settings[oldFilterID];
+            ui->images->item(i, side)->setData(ImagePreferences, oldSettings);
+        }
+        break;
+//    default:
+//    case 0: // do not propagate;
+    }
+
+
+
+}
+
+
+/** \brief Slot called from the UI to add an one or many images */
 void ImageTableWidget::insertImage()
 {
     QFileInfo fi;
@@ -128,6 +213,9 @@ void ImageTableWidget::insertImage()
         side = ImageTableWidget::rightSide;
     else // defaults to left
         side = ImageTableWidget::leftSide;
+
+    // Save current settings: call the currentItemChanged slot newItem = previusItem = currentItem
+    currentItemChanged(ui->images->currentItem(), ui->images->currentItem());
 
     if (lastDir.length() == 0)
         lastDir = QDir::currentPath();
@@ -151,6 +239,9 @@ void ImageTableWidget::insertImage()
         moveSelectionDown = true;
     }
 
+    // Load settings/image for the current item.
+    currentItemChanged(ui->images->currentItem(), NULL);
+
     if (imageFileName.length() > 0) {
         fi = QFileInfo(imageFileName);
         lastDir = fi.absolutePath();
@@ -168,18 +259,16 @@ void ImageTableWidget::addImage(QString fileName, ImageTableWidget::ImageSide si
     QTableWidgetItem *currentItem;
     QFileInfo fi(fileName);
     QPixmap icon;
-    int i, currentRow;
+    int currentRow;
 
     //NOTE: loading all icons at this time implies waiting time for the user.
     //Alternatives: put some "waiting" dialog or do ICON-loading in the background
     icon = QPixmap(fileName).scaledToWidth(100);
     item = new QTableWidgetItem(QIcon(icon),
                         fi.fileName());
-
-    // Adjust Table size if necessary
-    if (itemCount[side] >=  ui->images->rowCount()) {
-        ui->images->setRowCount(itemCount[side] + 1);
-    }
+    item->setData(ImageFileName, fileName);
+    item->setData(ImagePreferences, settings);
+    item->setToolTip(fileName);
 
     currentItem = ui->images->currentItem();
     if (currentItem && ui->images->currentColumn() == side) {
@@ -190,20 +279,40 @@ void ImageTableWidget::addImage(QString fileName, ImageTableWidget::ImageSide si
         currentRow = itemCount[side];
     }
 
-    // move all items after current item one step down
-    for (i = itemCount[side]; i > currentRow; i--) {
+    insertItem(item, currentRow, side);
+}
+
+/** \brief Inserts an item at row and side and selects it */
+void ImageTableWidget::insertItem(QTableWidgetItem *item, int row, int side)
+{
+    int i;
+
+    /* If the position is outside the possible possition, modifiy it to be the best
+     * available value */
+    if (side < 0)
+        side = 0;
+    if (side > 1)
+        side = 1;
+    if (row < 0)
+        row = 0;
+    if (row >= itemCount[side])
+        row = itemCount[side];
+
+    // Adjust Table size if necessary
+    if (itemCount[side] >=  ui->images->rowCount()) {
+        ui->images->setRowCount(itemCount[side] + 1);
+    }
+
+    // move all items after position one step down
+    for (i = itemCount[side]; i > row; i--) {
         ui->images->setItem(i, side, ui->images->takeItem(i - 1, side));
     }
 
-    ui->images->setItem(currentRow, side, item);
-    item->setData(ImageFileName, fileName);
-    item->setData(ImagePreferences, settings);
-    item->setToolTip(fileName);
+    ui->images->setItem(row, side, item);
     itemCount[side] = itemCount[side] + 1;
 
     // Select the inserted item
     ui->images->setCurrentItem(item);
-    // scroll down to next item for order by multiple inserts?
 }
 
 /** \brief Appends an image at the end of the Table
@@ -281,37 +390,162 @@ void ImageTableWidget::imageUp()
     ui->images->setCurrentItem(itemToUp);
 }
 
-void ImageTableWidget::removeSelected()
+void ImageTableWidget::moveImageLeft()
 {
-    int currentRow = ui->images->currentRow();
-    int currentColumn = ui->images->currentColumn();
-    if (currentColumn < 0 || currentColumn > 1)
+    int side = ui->images->currentColumn();
+    if (side != 1) { // nothing to move
         return;
-    int otherSide = 1 - currentColumn;
-    int i;
-
-    if (currentRow >=0
-            && currentRow >= itemCount[currentColumn])
-        return; //Nothing to delete
-
-    delete ui->images->takeItem(currentRow, currentColumn);
-    for (i = currentRow; i < itemCount[currentColumn] - 1; i++) {
-        ui->images->setItem(i, currentColumn,
-                            ui->images->takeItem(i + 1, currentColumn));
     }
-    itemCount[currentColumn]--;
-    if (itemCount[currentColumn] >= itemCount[otherSide]) {
-        ui->images->setRowCount(itemCount[currentColumn]);
+    int otherSide = 1 - side;
+
+    int currentRow = ui->images->currentRow();
+    if (currentRow < 0 || currentRow >= itemCount[side]) {
+        return;
+    }
+
+    QTableWidgetItem *itemToMove = takeItem(currentRow, side);
+    insertItem(itemToMove, currentRow, otherSide);
+}
+
+void ImageTableWidget::moveImageRight()
+{
+    int side = ui->images->currentColumn();
+    if (side != 0) { // nothing to move
+        return;
+    }
+    int otherSide = 1 - side;
+
+    int currentRow = ui->images->currentRow();
+    if (currentRow < 0 || currentRow >= itemCount[side]) {
+        return;
+    }
+
+    QTableWidgetItem *itemToMove = takeItem(currentRow, side);
+    insertItem(itemToMove, currentRow, otherSide);
+}
+
+void ImageTableWidget::selectPreviousImage()
+{
+    int side = ui->images->currentColumn();
+    int row = ui->images->currentRow();
+
+    row = row - 1;
+
+    /* If the position is outside the possible possition, modifiy it to be the best
+     * available value */
+    if (side < 0)
+        side = 0;
+    if (side > 1)
+        side = 1;
+    if (row < 0)
+        row = 0;
+    if (row >= itemCount[side])
+        row = itemCount[side] - 1;
+
+    ui->images->setCurrentCell(row, side);
+}
+
+void ImageTableWidget::selectNextImage()
+{
+    int side = ui->images->currentColumn();
+    int row = ui->images->currentRow();
+
+    row = row + 1;
+
+    /* If the position is outside the possible possition, modifiy it to be the best
+     * available value */
+    if (side < 0)
+        side = 0;
+    if (side > 1)
+        side = 1;
+    if (row < 0)
+        row = 0;
+    if (row >= itemCount[side])
+        row = itemCount[side] - 1;
+
+    ui->images->setCurrentCell(row, side);}
+
+void ImageTableWidget::selectRightImage()
+{
+    int side = ui->images->currentColumn();
+    int row = ui->images->currentRow();
+
+    side = 1;
+
+    /* If the position is outside the possible possition, modifiy it to be the best
+     * available value */
+    if (row < 0)
+        row = 0;
+    if (row >= itemCount[side])
+        row = itemCount[side] - 1;
+
+    ui->images->setCurrentCell(row, side);
+}
+
+void ImageTableWidget::selectLeftImage()
+{
+    int side = ui->images->currentColumn();
+    int row = ui->images->currentRow();
+
+    side = 0;
+
+    /* If the position is outside the possible possition, modifiy it to be the best
+     * available value */
+    if (row < 0)
+        row = 0;
+    if (row >= itemCount[side])
+        row = itemCount[side] - 1;
+
+    ui->images->setCurrentCell(row, side);
+}
+
+
+QTableWidgetItem * ImageTableWidget::takeItem(int row, int side)
+{
+    int i;
+    QTableWidgetItem *item;
+
+    if (side < 0 || side > 1)
+        return NULL; //Nothing to delete
+    int otherSide = 1 - side;
+
+    if (row >=0 && row >= itemCount[side]) {
+        return NULL; //Nothing to delete
+    }
+
+    item = ui->images->takeItem(row, side);
+    for (i = row; i < itemCount[side] - 1; i++) {
+        ui->images->setItem(i, side,
+                            ui->images->takeItem(i + 1, side));
+    }
+    itemCount[side]--;
+    if (itemCount[side] >= itemCount[otherSide]) {
+        ui->images->setRowCount(itemCount[side]);
     }
 
     // if last column removed, scroll one up
-    if (currentRow == itemCount[currentColumn] && currentRow > 0) {
-        ui->images->setCurrentCell(currentRow - 1, currentColumn);
+    if (row == itemCount[side] && row > 0) {
+        ui->images->setCurrentCell(row - 1, side);
     }
 
     // redraw
     currentItemChanged(ui->images->currentItem(), NULL);
+
+    return item;
 }
+
+
+
+
+void ImageTableWidget::removeSelected()
+{
+    int currentRow = ui->images->currentRow();
+    int currentColumn = ui->images->currentColumn();
+
+    delete takeItem(currentRow, currentColumn);
+}
+
+
 
 QMap<QString, QVariant> ImageTableWidget::getSettings()
 {
@@ -373,6 +607,8 @@ void ImageTableWidget::clear()
     ui->images->setRowCount(0);
     itemCount[leftSide] = 0;
     itemCount[rightSide] = 0;
+    ui->settingFilterPolicy->setCurrentIndex(0);
+    ui->settingImagePolicy->setCurrentIndex(0);
 }
 
 void ImageTableWidget::exportToFolder(QString folder)
@@ -420,7 +656,7 @@ void ImageTableWidget::exportToPdf(QString pdfFile)
             pixmap = filterContainer->getResultImage();
 
             /* set Paper size from the scaling Filter */
-            imageSize = filterContainer->getImageSize();
+            imageSize = filterContainer->getPageSize();
             printer->setPaperSize(QSize(imageSize["size"].toSize()),
                                   static_cast<QPrinter::Unit>(imageSize["unit"].toInt()));
 
@@ -439,7 +675,7 @@ void ImageTableWidget::exportToPdf(QString pdfFile)
             pixmap = filterContainer->getResultImage();
 
             /* set Paper size from the scaling Filter */
-            imageSize = filterContainer->getImageSize();
+            imageSize = filterContainer->getPageSize();
             printer->setPaperSize(QSize(imageSize["size"].toSize()),
                                   static_cast<QPrinter::Unit>(imageSize["unit"].toInt()));
 
@@ -459,5 +695,7 @@ void ImageTableWidget::exportToPdf(QString pdfFile)
 
     ui->images->setCurrentItem(currentItem);
 }
+
+
 
 

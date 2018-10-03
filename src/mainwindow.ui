@@ -120,6 +120,12 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
     <addaction name="actionRemove_selected"/>
     <addaction name="actionMoveImageUp"/>
     <addaction name="actionMoveImageDown"/>
+    <addaction name="actionMove_image_left"/>
+    <addaction name="actionMove_image_right"/>
+    <addaction name="actionSelectPreviousImage"/>
+    <addaction name="actionSelect_next_image"/>
+    <addaction name="actionSelect_left_image"/>
+    <addaction name="actionSelect_right_image"/>
    </widget>
    <widget class="QMenu" name="menu_Hilfe">
     <property name="title">
@@ -150,15 +156,24 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
    <property name="text">
     <string>&amp;Quit</string>
    </property>
+   <property name="shortcut">
+    <string>Alt+F4</string>
+   </property>
   </action>
   <action name="action_Open">
    <property name="text">
     <string>&amp;Open</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
   </action>
   <action name="action_Save">
    <property name="text">
     <string>&amp;Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
   <action name="action_SaveAs">
@@ -169,6 +184,9 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
   <action name="action_Close">
    <property name="text">
     <string>&amp;Close</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
    </property>
   </action>
   <action name="actionTo_Jpeg">
@@ -208,7 +226,7 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
     <string>Move image up</string>
    </property>
    <property name="shortcut">
-    <string>PgUp</string>
+    <string>Ctrl+Up</string>
    </property>
   </action>
   <action name="actionMoveImageDown">
@@ -219,7 +237,7 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
     <string>Move image down</string>
    </property>
    <property name="shortcut">
-    <string>PgDown</string>
+    <string>Ctrl+Down</string>
    </property>
   </action>
   <action name="actionAdd_empty_image">
@@ -238,6 +256,57 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
   <action name="action_Preferences">
    <property name="text">
     <string>&amp;Preferences</string>
+   </property>
+  </action>
+  <action name="actionMove_image_left">
+   <property name="text">
+    <string>Move image &amp;left</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Left</string>
+   </property>
+  </action>
+  <action name="actionMove_image_right">
+   <property name="text">
+    <string>Move image right</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Right</string>
+   </property>
+  </action>
+  <action name="actionSelectPreviousImage">
+   <property name="text">
+    <string>Select previous image</string>
+   </property>
+   <property name="toolTip">
+    <string>Select previous image</string>
+   </property>
+   <property name="shortcut">
+    <string>Up</string>
+   </property>
+  </action>
+  <action name="actionSelect_next_image">
+   <property name="text">
+    <string>Select next image</string>
+   </property>
+   <property name="shortcut">
+    <string>Down</string>
+   </property>
+  </action>
+  <action name="actionSelect_left_image">
+   <property name="text">
+    <string>Select left image</string>
+   </property>
+   <property name="shortcut">
+    <string>Left</string>
+   </property>
+  </action>
+  <action name="actionSelect_right_image">
+   <property name="text">
+    <string>Select right image</string>
+   </property>
+   <property name="shortcut">
+    <string>Right</string>
    </property>
   </action>
  </widget>
@@ -260,6 +329,12 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
     <slot>imageDown()</slot>
     <slot>insertImage()</slot>
     <slot>insertEmptyImage()</slot>
+    <slot>moveImageLeft()</slot>
+    <slot>moveImageRight()</slot>
+    <slot>selectPreviousImage()</slot>
+    <slot>selectNextImage()</slot>
+    <slot>selectLeftImage()</slot>
+    <slot>selectRightImage()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -382,6 +457,102 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
    <signal>triggered()</signal>
    <receiver>imageList</receiver>
    <slot>insertEmptyImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>127</x>
+     <y>293</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionMove_image_left</sender>
+   <signal>triggered()</signal>
+   <receiver>imageList</receiver>
+   <slot>moveImageLeft()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>127</x>
+     <y>293</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionMove_image_right</sender>
+   <signal>triggered()</signal>
+   <receiver>imageList</receiver>
+   <slot>moveImageRight()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>127</x>
+     <y>293</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSelectPreviousImage</sender>
+   <signal>triggered()</signal>
+   <receiver>imageList</receiver>
+   <slot>selectPreviousImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>127</x>
+     <y>293</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSelect_next_image</sender>
+   <signal>triggered()</signal>
+   <receiver>imageList</receiver>
+   <slot>selectNextImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>127</x>
+     <y>293</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSelect_left_image</sender>
+   <signal>triggered()</signal>
+   <receiver>imageList</receiver>
+   <slot>selectLeftImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>127</x>
+     <y>293</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSelect_right_image</sender>
+   <signal>triggered()</signal>
+   <receiver>imageList</receiver>
+   <slot>selectRightImage()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>

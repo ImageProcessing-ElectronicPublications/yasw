@@ -18,6 +18,7 @@
  */
 #include "scaling.h"
 #include <QDebug>
+#include <QPainter>
 
 Scaling::Scaling(QObject * parent) : BaseFilter(parent)
 {
@@ -72,9 +73,83 @@ void Scaling::setSettings(QMap<QString, QVariant> settings)
     recalculate();
 }
 
+qreal Scaling::pageMilimeterHeight()
+{
+    return widget->pageMilimeterHeight();
+}
+
+qreal Scaling::pageMilimeterWidth()
+{
+    return widget->pageMilimeterWidth();
+}
+
 void Scaling::recalculate()
 {
-    QSize outputSize = QSize(widget->imageWidth(),widget->imageHeight());
-    outputPixmap = inputPixmap.scaled(outputSize);
+    qreal imageWidth = widget->imagePixelWidth();
+    qreal imageHeight = widget->imagePixelHeight();
+    qreal pageWidth = widget->pagePixelWidth();
+    qreal pageHeight = widget->pagePixelHeight();
+    enum ScalingWidget::PageLayout layout = widget->layout();
+    qreal leftMargin, topMargin;
+
+    if (imageWidth == 0 || imageHeight == 0 || inputPixmap.isNull()) {
+        outputPixmap = QPixmap();
+    } else {
+        if (layout == ScalingWidget::MarginLayout) {
+            leftMargin = widget->leftMargin();
+            topMargin = widget->topMargin();
+        } else if (layout == ScalingWidget::PageLayout) {
+            // if the image is too big, reduce it.
+            // NOTE: this shall decrease the DPI value in the UI.
+            if (imageWidth > pageWidth) {
+                imageHeight = imageHeight * pageWidth / imageWidth;
+                imageWidth = pageWidth;
+            }
+            if (imageHeight > pageHeight) {
+                imageWidth = imageWidth * pageHeight / imageHeight;
+                imageHeight = pageHeight;
+            }
+
+            switch (widget->hAlignment()) {
+            case ScalingWidget::LeftHAlignment:
+                leftMargin = 0;
+                break;
+            case ScalingWidget::RightHAlignment:
+                leftMargin = pageWidth - imageWidth;
+                break;
+            case ScalingWidget::CenterHAlignment:
+            default:
+                leftMargin = (pageWidth - imageWidth) / 2;
+                break;
+            }
+            switch (widget->vAlignment()) {
+            case ScalingWidget::TopVAlignment:
+                topMargin = 0;
+                break;
+            case ScalingWidget::BottomVAlignment:
+                topMargin = (pageHeight - imageHeight);
+                break;
+            case ScalingWidget::CenterVAlignment:
+            default:
+                topMargin = (pageHeight - imageHeight) / 2;
+                break;
+            }
+
+
+        } else { // layout == noMarginLayout or error
+            leftMargin = 0;
+            topMargin = 0;
+        }
+
+        QSize outputImageSize = QSize(imageWidth, imageHeight);
+        QPixmap scaledImage = inputPixmap.scaled(outputImageSize);
+        QPixmap page = QPixmap(pageWidth, pageHeight);
+        //NOTE: fill color could be a parameter. Wait for User feedback ;-)
+        page.fill(Qt::white);
+        QPainter painter(&page);
+        painter.drawPixmap(leftMargin, topMargin, scaledImage);
+        outputPixmap = page;
+    }
+
     widget->setPreview(outputPixmap);
 }

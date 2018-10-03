@@ -21,8 +21,23 @@ public:
     void setPixmap(QPixmap pixmap);
     void setPreview(QPixmap pixmap);
     bool preview();
-    double imageHeight();
-    double imageWidth();
+    double imagePixelHeight();
+    double imagePixelWidth();
+    double pagePixelHeight();
+    double pagePixelWidth();
+    qreal pageMilimeterHeight();
+    qreal pageMilimeterWidth();
+    double leftMargin();
+    double topMargin();
+
+    enum HAlignment {LeftHAlignment, CenterHAlignment, RightHAlignment};
+    enum VAlignment {TopVAlignment, CenterVAlignment, BottomVAlignment};
+    enum PageLayout {NoMarginLayout, MarginLayout, PageLayout};
+
+    enum ScalingWidget::PageLayout layout();
+    enum ScalingWidget::HAlignment hAlignment();
+    enum ScalingWidget::VAlignment vAlignment();
+
     QMap<QString, QVariant> getSettings();
     void setSettings(QMap <QString, QVariant> settings);
 
@@ -40,6 +55,8 @@ signals:
 
 
 private:
+    qreal enteredSizeToPixel(qreal size);
+
     Ui::ScalingWidget *ui;
     QDoubleValidator *doubleValidator;
     int lastUnitIndex = 0;
