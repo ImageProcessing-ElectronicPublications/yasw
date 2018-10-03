@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *

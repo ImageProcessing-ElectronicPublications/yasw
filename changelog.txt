@@ -1,54 +1,16 @@
-ToDo / Roadmap
- - adapt pdf export
- - separate scaling filter from layout filter -> one may want to sets the settings differently (typicaly layout for all images)
- - checking "preview" on scaling widget does not calculate image
- - optimise YASW: selecting another (big) image lasts 1 second.
-   o when loading a project, recalculate is called a lot of times. This should not be!
-   o when inserting an image, recalclate ist called twice. This should not be!
- - scaling filter: add padding sizes and/or page size
- - Filter to fix image color / convert to black & white...
-   o add filter for color manipulation_/adjustment
-   o point to white pixel (or many white pixels)
- - BUG: png images can't export to jpg!
- - png images do not scale well
- - handle empty images (placeholder) differently
- - Load images for Icons in background
- - Implement disable filter
-   o disabling a filter (UI) should disable the rendering.
- - progress dialog while exporting / loading
- - Display page preview instead of original image in image list
- - drag and drop in the image list
- - error message on console: kfilemodule(5761)/kio (KDirModel)
-   KDirModelPrivate::_k_slotDeleteItems: No node found for item that was just
-   removed: KUrl("file:(((...")
- - windows port: security credentials (producer...)
- - add a placeholder at the end of the imagetablewidget, so that can insert an image at the end and
-   insert an image on the right when there is no image in the list.
- - Application Icon for YASW
- - autocalibration with a printed grid (line detection)
-   o have a look at ppmunwarp http://diybookscanner.org/forum/viewtopic.php?f=19&t=2589
- - move image from left ro right
- - centralized .h header with includes and default values.
-User requests:
- - Add the ability to take a checkerboard pattern as input to the de-warping stage.
- - A way to measure DPI in-situ. Allow the user to draw a line on the pic and inform yasw that the
-   actual physical length of this line is x. You could then compute DPI by measuring the length of
-   the drawn line in pixels and divide by length input.
-   o I assume you would calculate DPI on the cropped image. In that case, use the DPI to also
-     calculate and display the physical dimensions of the page or a sub-set of the page as selected
-     by a user-defined bounding box.
- - Under rotation filter, allow user to draw a line to indicate what is 'horizontal' - (maybe even
-   use 'Shift' key to force a horizontal line, i.e. deltaY = 0) Use the drawn line to calculate a
-   finer rotation angle to straighten the page. (maybe name the two filters 'orientation' and 'rotation'
-   to distinguish between them).
-   -- when I rotate the page, seeing the thumbnail rotated as well.
-   -- being able to "arrow down" through the pages quickly, viewing previews.
-   -- When I exported to PDF, though, the app exported all the Left images, followed by (most of) the
-      "right" images. It should alternate L/R, obviously. Also, I'm getting a white border on the top
-      and the left of the images; I don't know if that's intentional or not, but I'd like to be able
-      to turn it off.
+20141218; YASW 0.6
+ - Progress dialogs for long operations
+ - Performance optimisation (calculate only when seen on screen or exporting) & bug fixes
+ - Removed doxygen documentation as it is not complete. I will comment in the source as much as possible, but
+   without the doxygen format.
+ - XML Project Files (.yasw) Closes #22 and #25 as a side effect (Loading Project messes up file order)
+ - Scaling filter splitted in two - Fixes #19
+ - Checkbox "Enable Filter" works now - Fixes #27
+ - Changes are now only propagated when a user selects the according button, to avoid unwanted propagations. Fixes #24
+ - Migration to Qt5
+ - Progress bar when adding multiple images (Fixes #29)
 
-20130629; YASW 0.5 "release few but release often"
+20130629; YASW 0.5
  - Key shortcuts
  - Redesign of the Scaling Filter Widget
  - New policies for propagating changes. I'm not 100% happy as this is quite
@@ -69,7 +31,7 @@ User requests:
  - Scaling filter
  - Improve PDF Export (a lot!)
 
-20130525; YASW 0.3 "yasw has reached one (1) user!"
+20130525; YASW 0.3
  - About dialog
  - open -> recent projects
  - change selection color for dekeystoning and cropping

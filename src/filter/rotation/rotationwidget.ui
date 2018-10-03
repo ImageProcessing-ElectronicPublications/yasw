@@ -114,22 +114,6 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
   <connection>
    <sender>enable</sender>
    <signal>toggled(bool)</signal>
-   <receiver>preview</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>50</x>
-     <y>18</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>142</x>
-     <y>16</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>enable</sender>
-   <signal>toggled(bool)</signal>
    <receiver>rotateLeft</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
@@ -138,8 +122,8 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
      <y>17</y>
     </hint>
     <hint type="destinationlabel">
-     <x>23</x>
-     <y>404</y>
+     <x>218</x>
+     <y>33</y>
     </hint>
    </hints>
   </connection>
@@ -154,8 +138,8 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
      <y>21</y>
     </hint>
     <hint type="destinationlabel">
-     <x>57</x>
-     <y>404</y>
+     <x>252</x>
+     <y>33</y>
     </hint>
    </hints>
   </connection>

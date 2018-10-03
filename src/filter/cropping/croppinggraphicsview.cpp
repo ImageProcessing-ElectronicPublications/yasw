@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -82,6 +82,9 @@ void CroppingGraphicsView::moveRectangle()
 
     rectangle->setRect(0, 0, width, heigth);
     rectangle->setPos(topLeftCorner->scenePos());
+
+    // tell the filter widget that a parameter changed
+    emit parameterChanged();
 }
 
 

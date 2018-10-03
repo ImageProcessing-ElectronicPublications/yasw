@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -72,6 +72,8 @@ QVariant DekeystoningCorner::itemChange(GraphicsItemChange change, const QVarian
         foreach (DekeystoningLine *line, myLines)
             line->trackCorners();
         lastPosition = pos();
+        // tell the filter widget that a parameter changed
+        emit parameterChanged();
     }
     return QGraphicsEllipseItem::itemChange(change, value);
 }

@@ -17,11 +17,12 @@
 
 # Disable warning about non-static data member initializers.
 # No idea if this works on other platforms, old platforms will probably do not support it.
-DEFINES += "VERSION=0.5"
-
 QMAKE_CXXFLAGS += -std=c++11
 TARGET = yasw
 TEMPLATE = app
+QT += xml
+QT += widgets
+QT += printsupport
 SOURCES += main.cpp \
     mainwindow.cpp \
     filter/basefilter.cpp \
@@ -29,7 +30,6 @@ SOURCES += main.cpp \
     filter/basefilterwidget.cpp \
     filtercontainer.cpp \
     filter/dekeystoning/dekeystoningwidget.cpp \
-    filter/dekeystoning/dekeystoninggraphicsview.cpp \
     filter/dekeystoning/dekeystoning.cpp \
     filter/rotation/rotationwidget.cpp \
     filter/rotation/rotation.cpp \
@@ -41,9 +41,17 @@ SOURCES += main.cpp \
     filter/dekeystoning/dekeystoningline.cpp \
     filter/dekeystoning/dekeystoningcorner.cpp \
     imagetablewidget.cpp \
-    filter/scaling/scaling.cpp \
+    filter/scalewidget.cpp \
     preferencesdialog.cpp \
-    filter/scaling/scalingwidget.cpp
+    filter/colorcorrectionwidget.cpp \
+    filter/colorcorrection.cpp \
+    filter/dekeystoning/dekeystoninggraphicsview.cpp \
+    filter/colorcorrectiongraphicsview.cpp \
+    filter/colorcorrectiongraphicsscene.cpp \
+    constants.cpp \
+    filter/layoutfilter.cpp \
+    filter/layoutwidget.cpp \
+    filter/scalefilter.cpp
 HEADERS += mainwindow.h \
     filter/basefilter.h \
     filter/basefiltergraphicsview.h \
@@ -62,9 +70,16 @@ HEADERS += mainwindow.h \
     filter/dekeystoning/dekeystoningline.h \
     filter/dekeystoning/dekeystoningcorner.h \
     imagetablewidget.h \
-    filter/scaling/scaling.h \
+    filter/scalewidget.h \
+    filter/layoutfilter.h \
+    filter/layoutwidget.h \
     preferencesdialog.h \
-    filter/scaling/scalingwidget.h
+    filter/colorcorrectionwidget.h \
+    filter/colorcorrection.h \
+    filter/colorcorrectiongraphicsview.h \
+    filter/colorcorrectiongraphicsscene.h \
+    constants.h \
+    filter/scalefilter.h
 FORMS += mainwindow.ui \
     filter/basefilterwidget.ui \
     filter/dekeystoning/dekeystoningwidget.ui \
@@ -72,25 +87,26 @@ FORMS += mainwindow.ui \
     filter/cropping/croppingwidget.ui \
     imagetablewidget.ui \
     preferencesdialog.ui \
-    filter/scaling/scalingwidget.ui
+    filter/scalewidget.ui \
+    filter/layoutwidget.ui \
+    filter/colorcorrectionwidget.ui
 INCLUDEPATH += filter \
     filter/dekeystoning \
     filter/rotation \
-    filter/cropping \
-    filter/scaling
+    filter/cropping
 RESOURCES += icons/icons.qrc
 
 OTHER_FILES += \
-    ../documentation/doxygen-mainpage.txt \
     ../changelog.txt \
     ../install.txt \
-    ../documentation/gpl.txt \
+    ../gpl.txt \
+    ../developpers.txt \
     ../README
 
 static {
-# Everything below takes effect with CONFIG += static
-# thanks to Charles N. Burns, http://www.formortals.com/how-to-statically-link-qt-4/ for the help
-    QT += svg
+## Everything below takes effect when calling qmake with CONFIG += static
+## thanks to Charles N. Burns, http://www.formortals.com/how-to-statically-link-qt-4/ for the help
+## Update Qt5: Q_IMPORT_PLUGIN(qsvg) in main.c is not needed anymore; QT += svg neither
     QTPLUGIN += qsvg
     DEFINES += STATIC
     message ("This is a static build")

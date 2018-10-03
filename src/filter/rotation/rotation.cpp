@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -17,18 +17,25 @@
  * along with YASW.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "rotation.h"
+#include <QDebug>
 
 Rotation::Rotation(QObject * parent) : BaseFilter(parent)
 {
     widget = new RotationWidget();
     filterWidget = widget;
-    connect(widget, SIGNAL(rotationChanged()), this, SLOT(recalculate()));
+    connect(widget, SIGNAL(parameterChanged()), this, SLOT(widgetParameterChanged()));
     if (parent) {
         /* Connect slots to the filtercontainer */
         connect(parent, SIGNAL(backgroundColorChanged(QColor)),
                 widget, SLOT(setBackgroundColor(QColor)));
     }
 
+    // TODO: Connect seems only to work when applied to the inherited classes
+    // I would have love to connect one for all in Basefilter...
+    connect(widget, SIGNAL(enableFilterToggled(bool)),
+            this, SLOT(enableFilterToggled(bool)));
+    connect(widget, SIGNAL(previewChecked()),
+            this, SLOT(previewChecked()));
 }
 
 /** \brief Returns a universal name for this filter.
@@ -48,29 +55,24 @@ QString Rotation::getName()
     return tr("Rotation");
 }
 
-AbstractFilterWidget * Rotation::getWidget()
+QImage Rotation::filter(QImage inputImage)
 {
-    return widget;
+    if (filterEnabled) {
+        rotationMatrix.reset();
+        rotationMatrix.rotate(widget->rotation());
+        return inputImage.transformed(rotationMatrix);
+    } else {
+        return inputImage;
+    }
 }
 
-void Rotation::recalculate()
-{
-    rotationMatrix.reset();
-    rotationMatrix.rotate(widget->rotation());
-    outputPixmap = inputPixmap.transformed(rotationMatrix);
-    widget->setPreview(outputPixmap);
-}
-
-/** \brief Get filter settings
-
-  The only relevant Setting for the Filter is its rotation angle.
-  todo: One may want to also save the preview/disable checkbox.
-  */
+// Return the settings of the filter: Rotation Angle in Degrees and Enable Checkbox
 QMap<QString, QVariant> Rotation::getSettings()
 {
     QMap<QString, QVariant> settings;
 
     settings["rotation"] = widget->rotation();
+    settings["enabled"] = filterEnabled;
 
     return settings;
 }
@@ -82,18 +84,45 @@ QMap<QString, QVariant> Rotation::getSettings()
   */
 void Rotation::setSettings(QMap<QString, QVariant> settings)
 {
-    /* We might not need to check, as the default value for an uninitialized int
-        ist 0, but this is cleaner */
+    loadingSettings = true;
+
     if (settings.contains("rotation"))
-        widget->setRotation(settings["rotation"].toUInt());
+        widget->setRotation(settings["rotation"].toInt());
     else
         widget->setRotation(0);
 
-    recalculate();
+    if (settings.contains("enabled"))
+        enableFilter(settings["enabled"].toBool());
+    else
+        enableFilter("true");
+
+    mustRecalculate = true;
+    loadingSettings = false;
+    emit parameterChanged();
 }
 
-///*! \todo implement this */
-//QPixmap Rotation::getFilteredImage()
-//{
-//    return inputPixmap;
-//}
+void Rotation::settings2Dom(QDomDocument &doc, QDomElement &parent, QMap<QString, QVariant> settings)
+{
+    QDomElement filter = doc.createElement(getIdentifier());
+    parent.appendChild(filter);
+    if (settings.contains("rotation"))
+        filter.setAttribute("angle", settings["rotation"].toInt());
+    else
+        filter.setAttribute("angle", 0);
+
+    if (settings.contains("enabled"))
+        filter.setAttribute("enabled", settings["enabled"].toBool());
+    else
+        filter.setAttribute("enabled", true);
+}
+
+QMap<QString, QVariant> Rotation::dom2Settings(QDomElement &filterElement)
+{
+    QMap<QString, QVariant> settings;
+
+    settings["rotation"] = filterElement.attribute("angle", "0").toInt();
+    settings["enabled"] = filterElement.attribute("enabled", "1").toInt();
+
+    return settings;
+}
+

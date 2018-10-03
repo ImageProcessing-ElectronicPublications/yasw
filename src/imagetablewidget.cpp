@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -22,10 +22,13 @@
 #include <QPrinter>
 #include <QPainter>
 #include <QDebug>
+#include <QProgressDialog>
+
 #include "imagetablewidget.h"
+#include "constants.h"
+
 #include "ui_imagetablewidget.h"
 
-//TODO: comment this file, most comments from the old imagelistwidget shall match
 /* FIXME: I am very unhapy with the design of this ImageTableWidget. This is a dirty
    hack that has to be rewritten. It is a lot of work that noone sees but has to be
    rewritten before nice features like drag&drop comme in play.
@@ -62,143 +65,43 @@ void ImageTableWidget::setFilterContainer(FilterContainer *container)
     }
 
     filterContainer = container;
-
-    connect (this, SIGNAL(pixmapChanged(QPixmap)),
-             filterContainer, SLOT(setImage(QPixmap)));
-    // When a new filter is selected, propagate the changes to other images
-    connect (filterContainer, SIGNAL(filterChanged(QString)),
-             this, SLOT(filterChanged(QString)));
 }
 
 
 
 void ImageTableWidget::currentItemChanged(QTableWidgetItem *newItem, QTableWidgetItem *previousItem)
 {
+    if (!filterContainer) {
+        // This should never happen, but if so, do nothing.
+        return;
+    }
+
     QMap<QString, QVariant> settings;
     QMap<QString, QVariant> oldSettings;
-    int fromRow, side, i;
     QString filterID = "";
 
-    if (filterContainer && previousItem) {
+    if (previousItem) {
         settings = filterContainer->getSettings();
         oldSettings = previousItem->data(ImagePreferences).toMap();
         // settings changed? Save them!
         if (settings != oldSettings) {
             previousItem->setData(ImagePreferences, settings);
-
-            // Propagate settings according to settings policy
-            switch (ui->settingImagePolicy->currentIndex()) {
-            case 1: // propagate to all following images in this side
-                fromRow = ui->images->row(previousItem);
-                side = ui->images->column(previousItem);
-
-                switch (ui->settingFilterPolicy->currentIndex()) {
-                case 0: // propagate only selected filter
-                    filterID = filterContainer->currentFilter();
-                    for (i = fromRow; i < itemCount[side]; i++) {
-                        oldSettings = ui->images->item(i, side)->data(ImagePreferences).toMap();
-                        oldSettings[filterID] = settings[filterID];
-                        ui->images->item(i, side)->setData(ImagePreferences, oldSettings);
-                    }
-                    break;
-                case 1: // propagate all filter settings
-                    for (i = fromRow; i < itemCount[side]; i++) {
-                        ui->images->item(i, side)->setData(ImagePreferences, settings);
-                    }
-                    break;
-                }
-                break;
-            case 2: // propagate to all images in this side
-                side = ui->images->column(previousItem);
-                switch (ui->settingFilterPolicy->currentIndex()) {
-                case 0: // propagate only selected filter
-                    filterID = filterContainer->currentFilter();
-                    for (i = 0; i < itemCount[side]; i++) {
-                        oldSettings = ui->images->item(i, side)->data(ImagePreferences).toMap();
-                        oldSettings[filterID] = settings[filterID];
-                        ui->images->item(i, side)->setData(ImagePreferences, oldSettings);
-                    }
-                    break;
-                case 1: // propagate all filter settings
-                    for (i = 0; i < itemCount[side]; i++) {
-                        ui->images->item(i, side)->setData(ImagePreferences, settings);
-                    }
-                    break;
-                }
-                break;
-//          default:
-//          case 0: // do not propagate;
-            }
         }
-    }
-
-    if (filterContainer && newItem) {
-        filterContainer->setSettings(newItem->data(ImagePreferences).toMap());
     }
 
     if (newItem) {
-        emit pixmapChanged(QPixmap(newItem->data(ImageFileName).toString()));
+        // NOTE: setting the image an setting the settings results in recaluling twice the image
+        // There might be a performance improvement here.
+        filterContainer->setImage(QPixmap(newItem->data(ImageFileName).toString()));
+        filterContainer->setSettings(newItem->data(ImagePreferences).toMap());
     } else {
-        emit pixmapChanged(QPixmap());
+        // FIXME: can this happen?
+        qDebug() << "ImageTableWidget::currentItemChanged to an empty item";
+        filterContainer->setImage(QPixmap());
         // Reset Filter Settings as no image is selected
-        if (filterContainer)
-            filterContainer->setSettings(QMap<QString, QVariant>());
+        filterContainer->setSettings(QMap<QString, QVariant>());
     }
 }
-
-/* \brief Propagate settings to other images,
-   if the settings changed and if there is such a policy activated */
-void ImageTableWidget::filterChanged(QString oldFilterID)
-{
-    QMap<QString, QVariant> settings;
-    QMap<QString, QVariant> oldSettings;
-    QTableWidgetItem *item;
-    int fromRow, side, i;
-
-    settings = filterContainer->getSettings();
-    item = ui->images->currentItem();
-    if (item == NULL) { // There is no item under selection
-        return;
-    }
-    oldSettings = item->data(ImagePreferences).toMap();
-
-    if (settings[oldFilterID] == oldSettings[oldFilterID]) {
-        // do nothing
-        return;
-    }
-
-    // update old Settungs and save the changes
-    oldSettings[oldFilterID] = settings[oldFilterID];
-    item->setData(ImagePreferences, oldSettings);
-
-    // and propagate them according to the settings policy
-    switch (ui->settingImagePolicy->currentIndex()) {
-    case 1: // propagate to all following images in this side
-        fromRow = ui->images->row(item);
-        side = ui->images->column(item);
-
-        for (i = fromRow; i < itemCount[side]; i++) {
-            oldSettings = ui->images->item(i, side)->data(ImagePreferences).toMap();
-            oldSettings[oldFilterID] = settings[oldFilterID];
-            ui->images->item(i, side)->setData(ImagePreferences, oldSettings);
-        }
-        break;
-    case 2: // propagate to all images in this side
-        side = ui->images->column(item);
-        for (i = 0; i < itemCount[side]; i++) {
-            oldSettings = ui->images->item(i, side)->data(ImagePreferences).toMap();
-            oldSettings[oldFilterID] = settings[oldFilterID];
-            ui->images->item(i, side)->setData(ImagePreferences, oldSettings);
-        }
-        break;
-//    default:
-//    case 0: // do not propagate;
-    }
-
-
-
-}
-
 
 /** \brief Slot called from the UI to add an one or many images */
 void ImageTableWidget::insertImage()
@@ -214,8 +117,12 @@ void ImageTableWidget::insertImage()
     else // defaults to left
         side = ImageTableWidget::leftSide;
 
-    // Save current settings: call the currentItemChanged slot newItem = previusItem = currentItem
-    currentItemChanged(ui->images->currentItem(), ui->images->currentItem());
+    // if there is a selected item, save its settings.
+    QTableWidgetItem *currentImage = ui->images->currentItem();
+    if (currentImage) {
+        // Save current settings: call the currentItemChanged slot newItem = previusItem = currentItem
+        currentItemChanged(currentImage, currentImage);
+    }
 
     if (lastDir.length() == 0)
         lastDir = QDir::currentPath();
@@ -229,7 +136,25 @@ void ImageTableWidget::insertImage()
 //                        tr("Images (*.jpg *.png);;All files (* *.*)"));
                         tr("Images (*.jpg);;All files (* *.*)"));
 
+    int progress = 0;
+    int numberImages = images.length();
+    if (numberImages == 0) // No image to load
+        return;
+
+    QProgressDialog progressDialog(tr("Loading images..."), "Abort", 0, numberImages);
+    progressDialog.setWindowModality(Qt::WindowModal);
+
     foreach (imageFileName, images) {
+        // Update Progress Dialog
+        progressDialog.setValue(progress);
+        progress++;
+        if (progressDialog.wasCanceled()) {
+            // Allready loaded image can't be undone.
+            // Load settings/image for the current item.
+            currentItemChanged(ui->images->currentItem(), NULL);
+            return;
+        }
+        // Insert the image
         if (moveSelectionDown) {
             // Append images after the previous insertion.
             // Insert the first image depending on current selection, so do nothing.
@@ -239,9 +164,16 @@ void ImageTableWidget::insertImage()
         moveSelectionDown = true;
     }
 
+
+
     // Load settings/image for the current item.
     currentItemChanged(ui->images->currentItem(), NULL);
 
+    // Close progressDialog
+    progressDialog.setValue(numberImages);
+
+
+    // Saves path of the last loaded image.
     if (imageFileName.length() > 0) {
         fi = QFileInfo(imageFileName);
         lastDir = fi.absolutePath();
@@ -249,10 +181,8 @@ void ImageTableWidget::insertImage()
 
 }
 
-/** \brief inserts an image at the current selection on the given side.
-
+/* Inserts an image at the current selection on the given side and selects it.
 */
-// FIXME: handle fileName = "" (empty image)
 void ImageTableWidget::addImage(QString fileName, ImageTableWidget::ImageSide side, QMap<QString, QVariant> settings)
 {
     QTableWidgetItem *item;
@@ -280,9 +210,12 @@ void ImageTableWidget::addImage(QString fileName, ImageTableWidget::ImageSide si
     }
 
     insertItem(item, currentRow, side);
+
+    // Select the inserted item
+    ui->images->setCurrentItem(item);
 }
 
-/** \brief Inserts an item at row and side and selects it */
+/** \brief Inserts an item at row and side */
 void ImageTableWidget::insertItem(QTableWidgetItem *item, int row, int side)
 {
     int i;
@@ -310,9 +243,6 @@ void ImageTableWidget::insertItem(QTableWidgetItem *item, int row, int side)
 
     ui->images->setItem(row, side, item);
     itemCount[side] = itemCount[side] + 1;
-
-    // Select the inserted item
-    ui->images->setCurrentItem(item);
 }
 
 /** \brief Appends an image at the end of the Table
@@ -338,8 +268,6 @@ void ImageTableWidget::appendImageToSide(QString fileName,
     item->setData(ImagePreferences, settings);
     item->setToolTip(fileName);
     itemCount[side] = itemCount[side] + 1;
-
-    ui->images->setCurrentItem(item);
 }
 
 void ImageTableWidget::insertEmptyImage()
@@ -405,6 +333,8 @@ void ImageTableWidget::moveImageLeft()
 
     QTableWidgetItem *itemToMove = takeItem(currentRow, side);
     insertItem(itemToMove, currentRow, otherSide);
+    // Select the moved item
+    ui->images->setCurrentItem(itemToMove);
 }
 
 void ImageTableWidget::moveImageRight()
@@ -422,6 +352,8 @@ void ImageTableWidget::moveImageRight()
 
     QTableWidgetItem *itemToMove = takeItem(currentRow, side);
     insertItem(itemToMove, currentRow, otherSide);
+    // Select the moved item
+    ui->images->setCurrentItem(itemToMove);
 }
 
 void ImageTableWidget::selectPreviousImage()
@@ -499,7 +431,6 @@ void ImageTableWidget::selectLeftImage()
     ui->images->setCurrentCell(row, side);
 }
 
-
 QTableWidgetItem * ImageTableWidget::takeItem(int row, int side)
 {
     int i;
@@ -545,14 +476,12 @@ void ImageTableWidget::removeSelected()
     delete takeItem(currentRow, currentColumn);
 }
 
-
-
-QMap<QString, QVariant> ImageTableWidget::getSettings()
+void ImageTableWidget::saveProjectParameters(QDomDocument &doc, QDomElement &parent)
 {
-    QMap<QString, QVariant> settings;
-    QTableWidgetItem *item;
     int row;
-    QString key;
+    QTableWidgetItem *item;
+    QDomElement imageElement;
+    QMap<QString, QVariant> settings;
 
     // Save the settings of current filter before saving
     settings = filterContainer->getSettings();
@@ -563,52 +492,94 @@ QMap<QString, QVariant> ImageTableWidget::getSettings()
 
     for (row = 0; row < itemCount[leftSide]; row++) {
         item = ui->images->item(row, leftSide);
-        key = QString("%1_Left_").arg(row, leftSide) + item->data(ImageFileName).toString();
-        settings[key] = item->data(ImagePreferences).toMap();
+
+        // Save the image attributes
+        imageElement = doc.createElement("image");
+        imageElement.setAttribute("side", "left");
+        imageElement.setAttribute("filename", item->data(ImageFileName).toString());
+        parent.appendChild(imageElement);
+
+        // Save the filter settings
+        settings = item->data(ImagePreferences).toMap();
+        filterContainer->settings2Dom(doc, imageElement, settings);
+
     }
     for (row = 0; row < itemCount[rightSide]; row++) {
         item = ui->images->item(row, rightSide);
-        key = QString("%1_Right_").arg(row, rightSide) + item->data(ImageFileName).toString();
-        settings[key] = item->data(ImagePreferences).toMap();
+
+        // Save the image attributes
+        imageElement = doc.createElement("image");
+        imageElement.setAttribute("side", "right");
+        imageElement.setAttribute("filename", item->data(ImageFileName).toString());
+        parent.appendChild(imageElement);
+
+        // Save the filter settings
+        settings = item->data(ImagePreferences).toMap();
+        filterContainer->settings2Dom(doc, imageElement, settings);
     }
 
-    return settings;
+
+
+
 }
 
-void ImageTableWidget::setSettings(QMap<QString, QVariant> settings)
+// This function loads the parameter from XML (DOM) int yasw
+bool ImageTableWidget::loadProjectParameters(QDomElement &rootElement)
 {
-    QString key;
-    int row;
+    QDomElement imageElement;
     QString sideString;
     ImageTableWidget::ImageSide side;
+    int progress = 1;
     QString filename;
+
 
     clear();
 
-    foreach (key, settings.keys()) {
-        row = key.section("_", 0, 0).toInt();
-        sideString = key.section("_", 1, 1);
-        if (sideString == "Left") {
+    // Load all Images
+    int numberImages = rootElement.elementsByTagName("image").size();
+
+    QProgressDialog progressDialog("Loading project...", "Abort", 1, numberImages);
+    progressDialog.setWindowModality(Qt::WindowModal);
+
+    QMap<QString, QVariant> settings;
+
+    imageElement = rootElement.firstChildElement("image");
+    while (!imageElement.isNull()) {
+        // update progress dialog
+        progressDialog.setValue(progress);
+        if (progressDialog.wasCanceled()) {
+            return false;
+        }
+        // load image
+        sideString = imageElement.attribute("side");
+        if (sideString == "left") {
             side = leftSide;
-        } else {
-            //NOTE: this is not nice, we should check if sideString == "Right"
+        } else if (sideString == "right") {
             side = rightSide;
+        } else {
+            // Project file is not OK => cancel Loading
+            // FIXME: signal the error to the User?
+            progressDialog.cancel();
+            return false;
         }
-        filename = key.section("_", 2);
-        if (row >= 0 && filename.length() > 0) {
-            appendImageToSide(filename, side, settings[key].toMap());
-        }
+        filename = imageElement.attribute("filename");
+        // FIXME: settings
+        settings = filterContainer->dom2Settings(imageElement);
+        appendImageToSide(filename, side, settings);
+        imageElement = imageElement.nextSiblingElement("image");
+        progress++;
     }
+    progressDialog.setValue(numberImages);
+    return true;
 }
 
+// Empty the widget from all images;
 void ImageTableWidget::clear()
 {
     //FIXME: is memory cleared?
     ui->images->setRowCount(0);
     itemCount[leftSide] = 0;
     itemCount[rightSide] = 0;
-    ui->settingFilterPolicy->setCurrentIndex(0);
-    ui->settingImagePolicy->setCurrentIndex(0);
 }
 
 void ImageTableWidget::exportToFolder(QString folder)
@@ -618,84 +589,151 @@ void ImageTableWidget::exportToFolder(QString folder)
     QPixmap pixmap;
     QString filename;
 
+    int progress = 0;
+    int maxProgress = itemCount[leftSide] + itemCount[rightSide];
+    QProgressDialog progressDialog(QString("Exporting to folder %2...").arg(folder), "Abort", 0, maxProgress);
+    progressDialog.setWindowModality(Qt::WindowModal);
+
     for (row = 0; row < itemCount[leftSide]; row++) {
+        // Update Process Dialog
+        progressDialog.setValue(progress);
+        progress++;
+        if (progressDialog.wasCanceled()) {
+            ui->images->setCurrentItem(currentItem);
+            return;
+        }
+        // Export image
         ui->images->setCurrentCell(row, leftSide);
         pixmap = filterContainer->getResultImage();
         filename = QString("%1/image_%2_Left.jpg").arg(folder).arg(row+1, 3, 10, QChar('0'));
         pixmap.save(filename);
     }
     for (row = 0; row < itemCount[rightSide]; row++) {
+        // Update Process Dialog
+        progressDialog.setValue(progress);
+        progress++;
+        if (progressDialog.wasCanceled()) {
+            ui->images->setCurrentItem(currentItem);
+            return;
+        }
+        // Export image
         ui->images->setCurrentCell(row, rightSide);
         pixmap = filterContainer->getResultImage();
         filename = QString("%1/image_%2_Right.jpg").arg(folder).arg(row+1, 3, 10, QChar('0'));
         pixmap.save(filename);
     }
 
+    progressDialog.setValue(maxProgress);
     ui->images->setCurrentItem(currentItem);
 }
 
-void ImageTableWidget::exportToPdf(QString pdfFile)
+void ImageTableWidget::exportToPdf(QString pdfFile, int DPI)
 {
     int row;
+    qreal w = 0;
+    qreal h = 0;
     bool firstPage = true;
     QTableWidgetItem *currentItem = ui->images->currentItem();
     QPixmap pixmap;
     QPainter painter;
-    QMap<QString, QVariant> imageSize;
 
-    QPrinter *printer = new QPrinter();
-    printer->setOutputFormat(QPrinter::PdfFormat);
-    printer->setFullPage(true);
-    printer->setOutputFileName(pdfFile);
+    QPrinter printer(QPrinter::HighResolution);
+    printer.setOutputFormat(QPrinter::PdfFormat);
+    printer.setFullPage(true);
+    printer.setOutputFileName(pdfFile);
+    // This seems to have no effect. Setting it doesn't hurt...
+    printer.setResolution(DPI);
 
+    int progress = 0;
+    int maxProgress = qMax(itemCount[leftSide], itemCount[rightSide]);
+    QProgressDialog progressDialog(QString("Exporting to %2...").arg(pdfFile), "Abort", 0, maxProgress);
+    progressDialog.setWindowModality(Qt::WindowModal);
 
     for (row = 0; row < qMax(itemCount[leftSide], itemCount[rightSide]); row++) {
-        // left Side
-        if (row < itemCount[leftSide]) {       // is one item availabla at this row?
-            ui->images->setCurrentCell(row, leftSide);
-            pixmap = filterContainer->getResultImage();
-
-            /* set Paper size from the scaling Filter */
-            imageSize = filterContainer->getPageSize();
-            printer->setPaperSize(QSize(imageSize["size"].toSize()),
-                                  static_cast<QPrinter::Unit>(imageSize["unit"].toInt()));
-
-            // we don't need a new page for the first page or we would have a blank page
-            if (firstPage == true) {
-                firstPage = false;
-                painter.begin(printer);
-            } else {
-                printer->newPage();
-            }
-            painter.drawPixmap(printer->pageRect(), pixmap);
+        // Update Process Dialog
+        progressDialog.setValue(progress);
+        progress++;
+        if (progressDialog.wasCanceled()) {
+            painter.end();
+            ui->images->setCurrentItem(currentItem);
+            return;
         }
-        // right side
-        if (row < itemCount[rightSide]) {       // is one item availabla at this row?
-            ui->images->setCurrentCell(row, rightSide);
-            pixmap = filterContainer->getResultImage();
+        // Export pages
+        // handle both side with one peace of code. side values: 0 = leftSide, 1 = rightSide
+        for (int side = 0; side <= 1; side++) {
+            if (row < itemCount[side]) {       // is one item available at this row?
+                ui->images->setCurrentCell(row, side);
+                pixmap = filterContainer->getResultImage();
 
-            /* set Paper size from the scaling Filter */
-            imageSize = filterContainer->getPageSize();
-            printer->setPaperSize(QSize(imageSize["size"].toSize()),
-                                  static_cast<QPrinter::Unit>(imageSize["unit"].toInt()));
+                // as QPrinter does not handle DPI right, we have set the paper size in inches.
+                w = (qreal) pixmap.width() / DPI;
+                h = (qreal) pixmap.height() / DPI;
+                printer.setPaperSize(QSizeF(w, h), QPrinter::Inch);
 
-            // we don't need a new page for the first page or we would have a blank page
-            if (firstPage == true) {
-                firstPage = false;
-                painter.begin(printer);
-            } else {
-                printer->newPage();
+                // we don't need a new page for the first page or we would have a blank page
+                if (firstPage == true) {
+                    firstPage = false;
+                    painter.begin(&printer);
+                } else {
+                    printer.newPage();
+                }
+
+                painter.drawPixmap(printer.pageRect(), pixmap);
             }
-            painter.drawPixmap(printer->pageRect(), pixmap);
         }
     }
 
     painter.end();
-    delete(printer);
 
+    progressDialog.setValue(maxProgress);
     ui->images->setCurrentItem(currentItem);
 }
 
 
 
+
+void ImageTableWidget::on_btnPropagateFollowingSameSide_clicked()
+{
+    QMap<QString, QVariant> filterSettings;
+    int row = ui->images->currentRow();
+    int side = ui->images->currentColumn();
+
+    QMap<QString, QVariant> settings = filterContainer->getSettings();
+    QString filterID = filterContainer->currentFilter();
+    for (int i = row; i < itemCount[side]; i++) {
+        filterSettings = ui->images->item(i, side)->data(ImagePreferences).toMap();
+        filterSettings[filterID] = settings[filterID];
+        ui->images->item(i, side)->setData(ImagePreferences, filterSettings);
+    }
+}
+
+
+void ImageTableWidget::on_btnPropagateAllSameSide_clicked()
+{
+    QMap<QString, QVariant> filterSettings;
+    int side = ui->images->currentColumn();
+
+    QMap<QString, QVariant> settings = filterContainer->getSettings();
+    QString filterID = filterContainer->currentFilter();
+    for (int i = 0; i < itemCount[side]; i++) {
+        filterSettings = ui->images->item(i, side)->data(ImagePreferences).toMap();
+        filterSettings[filterID] = settings[filterID];
+        ui->images->item(i, side)->setData(ImagePreferences, filterSettings);
+    }
+}
+
+void ImageTableWidget::on_btnPropagateAll_clicked()
+{
+    QMap<QString, QVariant> filterSettings;
+
+    for (int side=0; side <= 1; side++) {
+        QMap<QString, QVariant> settings = filterContainer->getSettings();
+        QString filterID = filterContainer->currentFilter();
+        for (int i = 0; i < itemCount[side]; i++) {
+            filterSettings = ui->images->item(i, side)->data(ImagePreferences).toMap();
+            filterSettings[filterID] = settings[filterID];
+            ui->images->item(i, side)->setData(ImagePreferences, filterSettings);
+        }
+    }
+}
 

@@ -22,8 +22,8 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.</comment>
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>449</width>
-    <height>358</height>
+    <width>537</width>
+    <height>464</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -93,22 +93,6 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.</comment>
     <hint type="destinationlabel">
      <x>113</x>
      <y>146</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>enable</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>preview</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>96</x>
-     <y>27</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>165</x>
-     <y>27</y>
     </hint>
    </hints>
   </connection>

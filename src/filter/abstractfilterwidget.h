@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -21,17 +21,40 @@
 
 #include <QWidget>
 
+
+/* An abstract class for all Filter Widgets.
+
+  This abstract class describes the members a Filter Widget must have.
+  It has to be inherited by all Filter Widgets.
+
+  A Filter Widget must provide a way to
+  setPixmap - set the input image (for displaying it)
+  setPreview - set the output image (for previewing the result)
+  preview - inform if the preview is active
+  parameterChanged - inform if parameter have been changed in the widget
+*/
+
+
 class AbstractFilterWidget : public QWidget
 {
+    Q_OBJECT
 public:
     AbstractFilterWidget(QWidget *parent = 0);
-    //! \brief Sets the input pixmap
-    virtual void setPixmap(QPixmap pixmap);
-    //! \brief Sets the filtered pixmap for preview */
-    virtual void setPreview(QPixmap pixmap);
+    // Sets the input pixmap
+    virtual void setPixmap(QPixmap pixmap) = 0;
+    // Sets the output pixmap for preview
+    virtual void setPreview(QPixmap pixmap) = 0;
+    // true if preview is active
+    virtual bool preview() = 0;
+    virtual void enableFilter(bool enable) = 0;
 protected:
     QPixmap inputPixmap;
     QPixmap previewPixmap;
+signals:
+    void parameterChanged();
+    void enableFilterToggled(bool checked);
+    void previewChecked();
+
 };
 
 #endif // ABSTRACTFILTERWIDGET_H

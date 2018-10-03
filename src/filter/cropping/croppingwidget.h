@@ -22,18 +22,19 @@ public:
     void resetRectangleMoved();
     QMap<QString, QVariant> getSettings();
     void setSettings(QMap <QString, QVariant> settings);
+    void enableFilter(bool enable);
 
 public slots:
     void setSelectionColor(QColor color);
     void setBackgroundColor(QColor color);
+    void gvParameterChanged();
 
 private:
     Ui::CroppingWidget *ui;
 
-signals:
-    void rectangleChanged();
 private slots:
     void on_preview_toggled(bool checked);
+    void on_enable_toggled(bool checked);
 };
 
 #endif // CROPPINGWIDGET_H

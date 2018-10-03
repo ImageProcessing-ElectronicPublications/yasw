@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -24,8 +24,10 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QColor>
+#include <QtXml/QDomDocument>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "constants.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -43,15 +45,18 @@ MainWindow::MainWindow(QWidget *parent) :
 
     preferencesDialog = new PreferencesDialog();
 
-    /* Transmit global preferences changes to the filter container.
-       The filter container will retransmit the changes to the filter who subscribed to its signal
-       NOTE: next time a preference is added, englobe all signals into a global "preferences changed"
-             one: this is to much handwork.
-    */
+//  Transmit global preferences changes to the filter container.
+//  The filter container will retransmit the changes to the filter who subscribed to its signal
     connect(preferencesDialog, SIGNAL(selectionColorChanged(QColor)),
             ui->filterContainer, SLOT(setSelectionColor(QColor)));
     connect(preferencesDialog, SIGNAL(backgroundColorChanged(QColor)),
             ui->filterContainer, SLOT(setBackgroundColor(QColor)));
+    connect(preferencesDialog, SIGNAL(displayUnitChanged(QString)),
+            ui->filterContainer, SLOT(setDisplayUnit(QString)));
+    connect(preferencesDialog, SIGNAL(dpiChanged(int)),
+            ui->filterContainer, SLOT(setDPI(int)));
+
+
 
     preferencesDialog->setSettings(settings);
 }
@@ -94,8 +99,6 @@ void MainWindow::on_action_SaveAs_triggered()
     QString fileName;
 
     fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
-                               // FIXME: use last project name
-                               // FIXME: save last path
                                QDir::currentPath() + "/project.yasw",
                                tr("yasw projects (*.yasw);;All files (* *.*"));
 
@@ -107,33 +110,37 @@ void MainWindow::on_action_SaveAs_triggered()
         setProjectFileName(fileName);
 }
 
-/** \brief Save project settings to file
+/** Save project settings to an XML File
 
-  @returns true if successful; false on failure
+  returns true if successful; false on failure
   This private member is used to avoid dupplicate code betwenn save and save as.
-
   */
 bool MainWindow::saveProjectSettings(QString fileName)
 {
-    QMap<QString, QVariant> settings;
-
-    settings = ui->imageList->getSettings();
-
-    // FIXME: Save QStream version and yast Version
     QFile file(fileName);
-    if (file.open(QIODevice::WriteOnly)) {
-        QDataStream out(&file);
-        out << settings;
-        file.close();
-        return true;
+    if (!file.open(QFile::WriteOnly | QFile::Text)) {
+        // Failure
+        QMessageBox::critical(this,
+            tr("Could not save Project"),
+            tr("A problem occured while saving file \"%1\". The project could not be saved")
+                          .arg(fileName)
+                              );
+        return false;
     }
-    // else, we signal a failure
-    QMessageBox::critical(this,
-        tr("Could not save Project"),
-        tr("A problem occured while saving file \"%1\". The project could not be saved")
-                      .arg(fileName)
-                          );
-    return false;
+
+    QDomDocument doc;
+    QDomElement yasw = doc.createElement("yasw");
+    doc.appendChild(yasw);
+    yasw.setAttribute("version", VERSION);
+
+    preferencesDialog->saveProjectParameters(doc, yasw);
+    ui->imageList->saveProjectParameters(doc, yasw);
+
+    QTextStream out(&file);
+    doc.save(out, 4);
+    file.close();
+
+    return true;
 }
 /* \Brief Sets the current project name in the title bar and inserts it to the recent projects.
 
@@ -190,16 +197,51 @@ void MainWindow::addRecentProject(QString fileName)
 void MainWindow::loadProject(QString fileName)
 {
     QMap<QString, QVariant> settings;
+    bool loadingOK = true;
 
     QFile file(fileName);
-    if (file.open(QIODevice::ReadOnly)) {
-        QDataStream in(&file);
-        in >> settings;
-        file.close();
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        // Failure
+        QMessageBox::critical(this,
+            tr("Could not load Project"),
+            tr("A problem occured while loading file \"%1\"")
+                          .arg(fileName)
+                              );
+        return;
     }
-    setProjectFileName(fileName);
 
-    ui->imageList->setSettings(settings);
+    QDomDocument doc;
+    QString errMsg;
+    int errLine, errColumn;
+    if (!doc.setContent(&file, false, &errMsg, &errLine, &errColumn)) {
+        QMessageBox::critical(this,
+                              tr("Could not load Project"),
+                              tr("A problem occured while parsing file \"%1\" :\n"
+                                 "Line %2, Column %3: %4")
+                              .arg(fileName, QString::number(errLine),
+                                   QString::number(errColumn), errMsg));
+        return;
+    }
+
+    QDomElement rootElement = doc.documentElement();
+    if (rootElement.tagName() != "yasw") {
+        QMessageBox::critical(this,
+            tr("Could not load Project"),
+            tr("\"%1\" is not a valid YASW project file")
+                          .arg(fileName)
+                              );
+        return;
+    }
+
+    // if loadingError is true, the function after || will not be called.
+    loadingOK = loadingOK && preferencesDialog->loadProjectParameters(rootElement);
+    loadingOK = loadingOK && ui->imageList->loadProjectParameters(rootElement);
+    if (loadingOK) {
+        setProjectFileName(fileName);
+    } else {
+        // Something went wrong -> clear the project.
+        on_action_Close_triggered();
+    }
 }
 
 
@@ -233,30 +275,25 @@ void MainWindow::exportToJpeg()
         return;
 
     ui->imageList->exportToFolder(exportFolder);
-
-    QMessageBox::information(this,
-                tr("Project exported"),
-                tr("The project was exported to folder %1").arg(exportFolder)
-                             );
 }
 
 void MainWindow::exportToPdf()
 {
+    QString pdfFilename = QDir::currentPath() + "/file.pdf";
+
+    if (projectFileName.length() > 0) {
+        QFileInfo fi(projectFileName);
+        pdfFilename = fi.path() + "/" + fi.baseName() + ".pdf";
+    }
+
     QString exportFile = QFileDialog::getSaveFileName(this, tr("Export to PDF"),
-                               // FIXME: use project name
-                               // FIXME: save last path
-                               QDir::currentPath() + "/file.pdf",
+                               pdfFilename,
                                tr("PDF Files (*.pdf);;All files (* *.*"));
 
     if (exportFile.length() == 0)
         return;
 
-    ui->imageList->exportToPdf(exportFile);
-
-    QMessageBox::information(this,
-                tr("Project exported"),
-                tr("The project was exported to file %1").arg(exportFile)
-                );
+    ui->imageList->exportToPdf(exportFile, preferencesDialog->DPI());
 }
 
 /** \brief Close curent project,
@@ -269,7 +306,7 @@ void MainWindow::on_action_Close_triggered()
 
 void MainWindow::on_action_About_triggered()
 {
-    QMessageBox::about(this, tr("Yet Another Scan Wizard Version %1").arg(VERSION),
+    QMessageBox::about(this, tr("Yet Another Scan Wizard Version: %1").arg(VERSION),
                        tr("Yet Another Scan Wizard (YASW) is an application used to correct images taken "
                           "with a camera while scanning a book.\n\n"
 

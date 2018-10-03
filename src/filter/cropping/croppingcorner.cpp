@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -66,6 +66,7 @@ QVariant CroppingCorner::itemChange(QGraphicsItem::GraphicsItemChange change, co
         cornerMoved = true;
         emit signalCornerMoved();
         lastPosition = pos();
+        // tell the filter widget that a parameter changed
     }
     return QGraphicsEllipseItem::itemChange(change, value);
 }

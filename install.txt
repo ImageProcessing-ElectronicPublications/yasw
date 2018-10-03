@@ -10,7 +10,7 @@ is welcome!
 
 Complile YASW
 -------------
-Prerequisite to build YASW is the Qt-Plateform.
+Prerequisite to build YASW is the Qt5-Plateform.
 $ cd src
 $ qmake
 $ make
@@ -22,28 +22,15 @@ Run YASW
 After compiling YASW, just go into src and run "yasw", on linux:
 ./yasw
 
-Build YASW Developer-Documentation
-----------------------------------
-$ cd documentation
-$ make
-
 
 How to Release
 --------------
 #######################
 # Prepare Release
 #######################
-- edit changelog (name release)
-- update version in yasw.pro
+- edit changelog
+- update version in constants.h
 - make distclean working repository, rebuild in release, extensive test
-  - insert images left and right
-  - move images
-  - delete images
-  - save project
-  - close project
-  - open saved project
-  - export to jpg
-  - export to pdf
 - cross-compile to windows, small test
   - insert images
   - export to pdf
@@ -52,7 +39,7 @@ How to Release
 # Build source tarball
 #######################
 # Tag the git repository
-VERSION=0.5
+VERSION=0.6
 git tag -a yasw_${VERSION} -m "YASW version ${VERSION}"
 # build the tarball (note: it contains files like .gitignore...)
 git archive --prefix=yasw_${VERSION}/ yasw_${VERSION} | gzip > ../yasw_${VERSION}.tgz
@@ -66,16 +53,16 @@ git push --tags
 # Preparation: follow steps 1; 3; 4; 5c on http://mxe.cc/#tutorial :
 git clone -b stable https://github.com/mxe/mxe.git
 cd mxe
-make qt
+make qtsvg
 export PATH=/where MXE is installed/usr/bin:$PATH
 # Cross-compile YASW:
 cd <path to yasw root folder>
 mkdir windows-build
 cd windows-build
-i686-pc-mingw32-qmake ../src/yasw.pro CONFIG+=static
+/where MXE is installed/usr/i686-pc-mingw32/qt5/bin/qmake ../src/yasw.pro CONFIG+=static
 make
 # build archive
-VERSION=0.5
+VERSION=0.6
 mkdir yasw_${VERSION}_Windows
 cp release/yasw.exe yasw_${VERSION}_Windows/
 cp ../README yasw_${VERSION}_Windows/

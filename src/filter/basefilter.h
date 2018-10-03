@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -25,7 +25,9 @@
 #include <QMap>
 #include <QVariant>
 #include <QString>
+#include <QtXml/QDomDocument>
 #include "basefilterwidget.h"
+#include <QImage>
 
 
 class BaseFilter : public QObject
@@ -35,21 +37,52 @@ public:
     BaseFilter(QObject * parent = 0);
     ~BaseFilter();
     void setImage(const QPixmap pixmap);
-    virtual QPixmap getFilteredImage();
+    virtual QPixmap getOutputImage();
+
     AbstractFilterWidget* getWidget();
     virtual QString getIdentifier();
     virtual QString getName();
+
     virtual QMap<QString, QVariant> getSettings();
     virtual void setSettings(QMap <QString, QVariant> settings);
+    virtual void settings2Dom(QDomDocument &doc, QDomElement &imageElement, QMap<QString, QVariant> settings);
+    virtual QMap<QString, QVariant> dom2Settings(QDomElement &filterElement);
+
+    void setPreviousFilter(BaseFilter *filter);
+    void enableFilter(bool enable);
+    void refresh();
+
 public slots:
-    virtual void recalculate();
+    /* get the information from external classes that an external parameter changed.
+     * Next time getFilteredImage() is called, must reload the inputPixmap. */
+    void inputImageChanged();
+    /* Parameter for the Filter changed through user intercaction */
+    void widgetParameterChanged();
+    void enableFilterToggled(bool checked);
+    void previewChecked();
+signals:
+    /* Yell that my parameter (this includes input image) changed and that one need to reload my FilteredImage */
+    void parameterChanged();
 
 protected:
     QPixmap inputPixmap;
     QPixmap outputPixmap;
-    AbstractFilterWidget *filterWidget;
+    AbstractFilterWidget *filterWidget = NULL;
+    /* Store the information that the input image has to be reloaded before producing the output image */
+    bool reloadInputImage = false;
+    /* Only recalculate when mustRecalculate == true */
+    bool mustRecalculate = false;
+    /* Link to previous Filter which can delivery a new inputImage */
+    BaseFilter *previousFilter = NULL;
+    // when true, do not recalculate (this is not an user interaction)
+    bool loadingSettings = false;
+    virtual void compute();
+    virtual QImage filter(QImage inputImage);
+    bool filterEnabled = true; // default on all widgets
+
 private:
     BaseFilterWidget* widget;
+
 
 };
 

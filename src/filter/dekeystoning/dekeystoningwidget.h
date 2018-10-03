@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -41,11 +41,13 @@ public:
     void resetPolygonMoved();
     QMap<QString, QVariant> getSettings();
     void setSettings(QMap <QString, QVariant> settings);
+    void enableFilter(bool enable);
+
 
 public slots:
     void setSelectionColor(QColor color);
     void setBackgroundColor(QColor color);
-
+    void gvParameterChanged();
 
 protected:
     void changeEvent(QEvent *e);
@@ -55,9 +57,7 @@ private:
 
 private slots:
     void on_preview_toggled(bool checked);
-
-signals:
-    void polygonChanged();
+    void on_enable_toggled(bool checked);
 };
 
 #endif // DEKEYSTONINGWIDGET_H

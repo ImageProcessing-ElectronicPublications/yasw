@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -38,6 +38,8 @@ public:
     bool preview();
     int rotation();
     void setRotation(int degrees);
+    void enableFilter(bool enable);
+
 
 public slots:
     void setBackgroundColor(QColor color);
@@ -47,9 +49,7 @@ private slots:
     void on_rotateLeft_clicked();
     void on_rotateRight_clicked();
     void on_preview_toggled(bool checked);
-
-signals:
-    void rotationChanged();
+    void on_enable_toggled(bool checked);
 
 private:
     Ui::RotationWidget *ui;

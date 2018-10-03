@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -23,9 +23,10 @@
 #include <QMap>
 #include <QVariant>
 #include <QString>
+#include <QtXml/QDomDocument>
 #include "basefilter.h"
 #include "abstractfilterwidget.h"
-#include "scaling.h"
+#include "scalefilter.h"
 
 class FilterContainer : public QTabWidget
 {
@@ -36,33 +37,28 @@ public:
 
     QMap<QString, QVariant> getSettings();
     void setSettings(QMap<QString, QVariant> settings);
+    void settings2Dom(QDomDocument &doc, QDomElement &imageElement, QMap<QString, QVariant> settings);
+    QMap<QString, QVariant> dom2Settings(QDomElement &imageElement);
     QPixmap getResultImage();
-    QMap<QString, QVariant> getPageSize();
     QString currentFilter();
+    void setImage(QPixmap pixmap);
 
 public slots:
     void tabChanged(int index);
-    void setImage(QPixmap pixmap);
     void setSelectionColor(QColor color);
     void setBackgroundColor(QColor color);
-
+    void setDisplayUnit(QString unit);
+    void setDPI(int dpi);
 
 private:
     QList<BaseFilter *> tabToFilter;
-    int oldIndex; //stores the last selected index
-    void updatePixmapInTabs(int beginTab = 1, int endTab = -1);
-    void updateCurrentTabPixmap(int fromIndex = 1);
-    Scaling *scalingFilter;
+    int oldIndex = 0; //stores the last selected index, at init = first tab
 
 signals:
+    // Propagates changes to global configuration paramters
     void selectionColorChanged(QColor color);
     void backgroundColorChanged(QColor color);
-    /** \brief Emited when a user changes the Tab
-
-      Used by imageTableWidget to propagate the settings to other images.
-    */
-    void filterChanged(QString oldFilterID);
-
-
+    void displayUnitChanged(QString unit);
+    void dpiChanged(int dpi);
 };
 #endif // FILTERCONTAINER_H

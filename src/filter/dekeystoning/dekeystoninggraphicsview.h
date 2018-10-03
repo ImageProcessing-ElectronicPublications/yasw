@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -42,6 +42,7 @@ public:
 
 public slots:
     void hidePolygon(bool hide);
+    void cornerMoved();
 
 private:
     DekeystoningCorner *topLeftCorner,
@@ -54,6 +55,9 @@ private:
     const QPoint defaultTopRight = QPoint(500, 100);
     const QPoint defaultBottomLeft = QPoint(100, 500);
     const QPoint defaultBottomRight = QPoint(500, 500);
+
+signals:
+    void parameterChanged();
 };
 
 #endif // DEKEYSTONINGGRAPHICSVIEW_H

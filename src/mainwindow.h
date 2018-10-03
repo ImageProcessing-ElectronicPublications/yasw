@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -56,10 +56,10 @@ private slots:
 
 private:
     bool saveProjectSettings(QString fileName);
-    void setProjectFileName(QString fileName);
-
-    void addRecentProject(QString fileName);
     void loadProject(QString fileName);
+
+    void setProjectFileName(QString fileName);
+    void addRecentProject(QString fileName);
 
     Ui::MainWindow *ui;
     QString projectFileName;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <comment>Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ <comment>Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
 
 This file is part of YASW (Yet Another Scan Wizard).
 
@@ -48,8 +48,8 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
-   <item row="0" column="0">
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
     <widget class="QTableWidget" name="images">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
@@ -115,7 +115,7 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
      <column/>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item>
     <layout class="QGridLayout" name="gridLayout">
      <item row="1" column="4">
       <spacer name="horizontalSpacer_2">
@@ -230,54 +230,42 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
      </item>
     </layout>
    </item>
-   <item row="2" column="0">
+   <item>
     <widget class="Line" name="line">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="settingPolicyLabel">
+   <item>
+    <widget class="QLabel" name="settingPolicyLabel_2">
      <property name="text">
-      <string>When selecting another image or filter, do propage the settings</string>
+      <string>Propagate the settings of the active filter to...</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
-    <widget class="QComboBox" name="settingFilterPolicy">
-     <item>
-      <property name="text">
-       <string>only of the last active filter</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>of every filter</string>
-      </property>
-     </item>
+   <item>
+    <widget class="QPushButton" name="btnPropagateFollowingSameSide">
+     <property name="text">
+      <string>all following images on the side</string>
+     </property>
     </widget>
    </item>
-   <item row="5" column="0">
-    <widget class="QComboBox" name="settingImagePolicy">
-     <item>
-      <property name="text">
-       <string>to no other image</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>to all following images of the side</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>to all images of the side</string>
-      </property>
-     </item>
+   <item>
+    <widget class="QPushButton" name="btnPropagateAllSameSide">
+     <property name="text">
+      <string>all images on the side</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btnPropagateAll">
+     <property name="text">
+      <string>all images</string>
+     </property>
     </widget>
    </item>
   </layout>

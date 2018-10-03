@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -16,30 +16,31 @@
  * You should have received a copy of the GNU General Public License
  * along with YASW.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SCALING_H
-#define SCALING_H
+#ifndef LAYOUTFILTER_H
+#define LAYOUTFILTER_H
 
 #include "basefilter.h"
-#include "scalingwidget.h"
+#include "layoutwidget.h"
 
-class Scaling : public BaseFilter
+class LayoutFilter : public BaseFilter
 {
+    Q_OBJECT
+
 public:
-    Scaling(QObject * parent = 0);
-    AbstractFilterWidget* getWidget();
+    LayoutFilter(QObject * parent = 0);
     QString getIdentifier();
     QString getName();
     QMap<QString, QVariant> getSettings();
     void setSettings(QMap <QString, QVariant> settings);
-    qreal pageMilimeterHeight();
-    qreal pageMilimeterWidth();
-private:
-    ScalingWidget *widget;
-    QTransform scalingMatrix;
-
+    void settings2Dom(QDomDocument &doc, QDomElement &imageElement, QMap<QString, QVariant> settings);
+    QMap<QString, QVariant> dom2Settings(QDomElement &filterElement);
 public slots:
-    void recalculate();
+    void setDisplayUnit(QString unit);
+protected:
+    virtual QImage filter(QImage inputImage);
 
+private:
+    LayoutWidget *widget;
 };
 
-#endif // SCALING_H
+#endif // LAYOUTFILTER_H

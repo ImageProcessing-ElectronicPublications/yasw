@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -24,6 +24,9 @@ DekeystoningWidget::DekeystoningWidget(QWidget *parent) :
     ui(new Ui::DekeystoningWidget)
 {
     ui->setupUi(this);
+
+    connect(ui->view, SIGNAL(parameterChanged()),
+            this, SLOT(gvParameterChanged()));
 }
 
 DekeystoningWidget::~DekeystoningWidget()
@@ -81,8 +84,8 @@ void DekeystoningWidget::on_preview_toggled(bool checked)
 {
     if (checked) {
         ui->view->resetPolygonMoved();
-        emit polygonChanged();
-        ui->view->setPixmap(previewPixmap);
+        // This does recalculate the output image if necessary and sets the preview Image.
+        emit previewChecked();
     } else {
         ui->view->setPixmap(inputPixmap);
     }
@@ -120,6 +123,12 @@ void DekeystoningWidget::setSettings(QMap<QString, QVariant> settings)
     ui->view->setSettings(settings);
 }
 
+void DekeystoningWidget::enableFilter(bool enable)
+{
+    ui->enable->setChecked(enable);
+
+}
+
 /** \brief Sets new Selection Color
 
   This does only forward the information, as this widget ist the only one able to call
@@ -135,4 +144,14 @@ void DekeystoningWidget::setBackgroundColor(QColor color)
     ui->view->setBackgroundBrush(QBrush(color));
 }
 
+void DekeystoningWidget::gvParameterChanged()
+{
+    emit parameterChanged();
+}
 
+
+
+void DekeystoningWidget::on_enable_toggled(bool checked)
+{
+    emit enableFilterToggled(checked);
+}

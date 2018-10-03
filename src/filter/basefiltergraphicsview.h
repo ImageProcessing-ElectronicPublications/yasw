@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -22,7 +22,6 @@
 #include <QGraphicsView>
 #include <QGraphicsPixmapItem>
 
-
 class BaseFilterGraphicsView : public QGraphicsView {
     Q_OBJECT
 public:
@@ -31,9 +30,8 @@ public:
     void setPixmap(const QPixmap pixmap);
 protected:
     void wheelEvent(QWheelEvent *event);
-    QGraphicsScene *scene;
-private:
-    QGraphicsPixmapItem *pixmapItem;
+    QGraphicsScene *scene = NULL;
+    QGraphicsPixmapItem *pixmapItem = NULL;
 };
 
 #endif // BASEFILTERGRAPHICSVIEW_H

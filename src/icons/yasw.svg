@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg id="svg2" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" style="shape-rendering:geometricPrecision;text-rendering:geometricPrecision;image-rendering:optimizeQuality" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" xml:space="preserve" height="100mm" width="100mm" version="1.1" clip-rule="evenodd" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="0 0 100 100">
+ <rect id="rect3125" fill-rule="evenodd" height="100" width="60" stroke="#000" y="0" x="0" stroke-width="1px" fill="#0f0"/>
+ <path id="path3142" d="m70 30v40l20 10v-60z" stroke="#000" stroke-width="1px" fill="#f00"/>
+ <path id="path3142-3" d="m0 0v100l70-30v-40z" stroke="#000" stroke-width="1px" fill="none"/>
+ <path id="path3142-3-6" d="m60 0v100l30-20v-60z" stroke="#000" stroke-width="1px" fill="none"/>
+ <g id="g3015" fill-rule="nonzero" fill="#bebebe" transform="matrix(2.8222 0 0 2.8222 -403.01 -1478.8)"><path id="rect5238-8" style="color:#bebebe" d="m169.25 536c-0.47139 0-0.74314 0.54175-0.75 1v1h-2.5c-0.46865 0.0651-1 0.5417-1 1v6c0 0.4583 0.52685 1 1 1h10c0.47315 0 1-0.5417 1-1v-6c0-0.4583-0.52685-1-1-1h-2.5v-1c0-0.4583-0.34111-1-0.8125-1zm1.75 3c1.6568 0 3 1.3432 3 3s-1.3432 3-3 3-3-1.3432-3-3 1.3432-3 3-3z"/><path id="path2998" d="m-3.7538 10.335c0 0.73732-0.43384 1.335-0.969 1.335s-0.969-0.59771-0.969-1.335c0-0.73732 0.43384-1.335 0.969-1.335s0.969 0.59771 0.969 1.335z" transform="matrix(2.064 0 0 1.4981 180.75 526.52)"/></g>
+</svg>

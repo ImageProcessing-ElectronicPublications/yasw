@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -16,6 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with YASW.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+#include "constants.h"
 #include "basefilter.h"
 
 /*! \class BaseFilter
@@ -50,16 +52,18 @@ BaseFilter::~BaseFilter()
 void BaseFilter::setImage(QPixmap pixmap)
 {
     inputPixmap = pixmap;
+    emit parameterChanged();
     filterWidget->setPixmap(pixmap);
-    recalculate();
+    mustRecalculate = true;
 }
 
-/*! \brief Returns the transformed page
+/*! \brief Returns the transformed image
 
   @returns The transformed page, or a null Pixmap if no page is available
 */
-QPixmap BaseFilter::getFilteredImage()
+QPixmap BaseFilter::getOutputImage()
 {
+    refresh();
     return outputPixmap;
 }
 
@@ -70,7 +74,7 @@ QPixmap BaseFilter::getFilteredImage()
   */
 AbstractFilterWidget* BaseFilter::getWidget()
 {
-    return widget;
+    return filterWidget;
 }
 
 /** \brief Returns a universal name for this filter.
@@ -89,13 +93,40 @@ QString BaseFilter::getName()
     return tr("Base Filer");
 }
 
-/*! \brief Recalculate the output Pixmap
 
-    In the case of BaseFilter: does nothing as the filter does nothing.
-*/
-void BaseFilter::recalculate()
+
+void BaseFilter::inputImageChanged()
 {
-    outputPixmap = inputPixmap;
+    reloadInputImage = true;    // This implies mustRecalculate = true in refresh();
+    // Tell folowing filter that my parameter changed.
+    emit parameterChanged();
+}
+
+void BaseFilter::widgetParameterChanged()
+{
+    emit parameterChanged();
+    mustRecalculate = true;
+    // Only refresh the output image if preview is active
+    if (filterWidget->preview()) {
+        refresh();
+    }
+}
+
+void BaseFilter::enableFilterToggled(bool checked)
+{
+    filterEnabled = checked;
+    emit parameterChanged();
+    // Only refresh the output image if preview is active
+    mustRecalculate = true;
+    if (filterWidget->preview()) {
+        refresh();
+    }
+}
+
+void BaseFilter::previewChecked()
+{
+    refresh();
+    filterWidget->setPreview(outputPixmap);
 }
 
 /*! \brief virtual function to get the Filter settings
@@ -114,9 +145,64 @@ QMap<QString, QVariant> BaseFilter::getSettings()
 */
 void BaseFilter::setSettings(QMap<QString, QVariant> /* settings */)
 {
+//    loadingSettings = true;
     /* Ignore settings, as there is nothing to set */
+    //    loadingSettings = false;
 }
 
+// Dummy function that create a node for filter that do not implement this virtual function
+void BaseFilter::settings2Dom(QDomDocument &doc, QDomElement &imageElement, QMap<QString, QVariant> /* settings */)
+{
+    QDomElement filterElement = doc.createElement(getIdentifier());
+    QDomComment commentElement = doc.createComment("Created by BaseFilter");
+    imageElement.appendChild(filterElement);
+    filterElement.appendChild(commentElement);
+    return;
+}
 
+QMap<QString, QVariant> BaseFilter::dom2Settings(QDomElement & /* filterElement */)
+{
+    /* As BaseFilter does nothing, there are no settings to transform */
+    return QMap<QString, QVariant>();
+}
 
+void BaseFilter::setPreviousFilter(BaseFilter *filter)
+{
+    previousFilter = filter;
+    /* Change of previous Filter = change of external Parameter*/
+    inputImageChanged();
+}
 
+void BaseFilter::enableFilter(bool enable)
+{
+    filterEnabled = enable;
+    filterWidget->enableFilter(enable);
+}
+
+void BaseFilter::refresh()
+{
+    if (loadingSettings)
+        return;
+
+    if (reloadInputImage && previousFilter) {
+        setImage(previousFilter->getOutputImage());
+        reloadInputImage = false;
+        mustRecalculate = true;
+    }
+    if (mustRecalculate) {
+        outputPixmap = QPixmap::fromImage(filter(inputPixmap.toImage()));
+        mustRecalculate = false;
+        filterWidget->setPreview(outputPixmap);
+    }
+}
+
+// Do compute the outputPixmap with the help of all available parameters.
+void BaseFilter::compute()
+{
+    outputPixmap = QPixmap::fromImage(filter(inputPixmap.toImage()));
+}
+
+QImage BaseFilter::filter(QImage inputImage)
+{
+    return inputImage;
+}

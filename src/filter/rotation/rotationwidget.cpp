@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -52,22 +52,24 @@ void RotationWidget::setPreview(QPixmap pixmap)
 void RotationWidget::on_rotateLeft_clicked()
 {
     rotationAngle = (rotationAngle - 90) % 360;
-    emit rotationChanged();
+    emit parameterChanged();
 }
 
 void RotationWidget::on_rotateRight_clicked()
 {
     rotationAngle = (rotationAngle + 90) % 360;;
-    emit rotationChanged();
+    emit parameterChanged();
 }
 
 
 void RotationWidget::on_preview_toggled(bool checked)
 {
-    if (checked)
-        ui->view->setPixmap(previewPixmap);
-    else
+    if (checked) {
+        // This does recalculate the output image if necessary and sets the preview Image.
+        emit previewChecked();
+    } else {
         ui->view->setPixmap(inputPixmap);
+    }
 }
 
 bool RotationWidget::preview()
@@ -91,7 +93,17 @@ void RotationWidget::setRotation(int degrees)
     rotationAngle = degrees;
 }
 
+void RotationWidget::enableFilter(bool enable)
+{
+    ui->enable->setChecked(enable);
+}
+
 void RotationWidget::setBackgroundColor(QColor color)
 {
     ui->view->setBackgroundBrush(QBrush(color));
+}
+
+void RotationWidget::on_enable_toggled(bool checked)
+{
+    emit enableFilterToggled(checked);
 }

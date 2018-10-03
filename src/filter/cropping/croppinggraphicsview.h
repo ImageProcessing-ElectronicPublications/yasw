@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -44,6 +44,8 @@ private:
     QGraphicsRectItem *rectangle;
     const QPoint defaultTopLeft = QPoint(100, 100);
     const QPoint defaultBottomRight = QPoint(500, 500);
+signals:
+    void parameterChanged();
 };
 
 #endif // CROPPINGGRAPHICSVIEW_H

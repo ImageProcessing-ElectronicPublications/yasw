@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <comment>Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ <comment>Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
 
 This file is part of YASW (Yet Another Scan Wizard).
 
@@ -35,6 +35,10 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
   </property>
   <property name="windowTitle">
    <string>yasw - new project</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="icons/icons.qrc">
+    <normaloff>:/icons/yasw.svg</normaloff>:/icons/yasw.svg</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
    <property name="sizePolicy">
@@ -81,7 +85,7 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
      <x>0</x>
      <y>0</y>
      <width>1010</width>
-     <height>24</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -338,7 +342,9 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
    </slots>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="icons/icons.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>action_Quit</sender>

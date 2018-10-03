@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -52,6 +52,8 @@ signals:
     coners. The connection is handeld in the constructor of DekeystoningGraphicsView.
      */
     void moveOtherCorner(QPointF delta);
+    // When a corner is moved, emit a parameterChanged() signal.
+    void parameterChanged();
 };
 
 #endif // DEKEYSTONINGCORNER_H

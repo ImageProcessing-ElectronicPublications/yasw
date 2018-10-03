@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -29,14 +29,16 @@ class Rotation: public BaseFilter
     Q_OBJECT
 public:
     Rotation(QObject * parent = 0);
-    AbstractFilterWidget* getWidget();
     QString getIdentifier();
     QString getName();
     QMap<QString, QVariant> getSettings();
     void setSettings(QMap <QString, QVariant> settings);
+    void settings2Dom(QDomDocument &doc, QDomElement &parent, QMap<QString, QVariant> settings);
+    QMap<QString, QVariant> dom2Settings(QDomElement &filterElement);
 
-public slots:
-    void recalculate();
+protected:
+    virtual QImage filter(QImage inputImage);
+
 
 private:
     RotationWidget *widget;

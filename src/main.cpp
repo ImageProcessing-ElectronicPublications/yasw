@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -16,15 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with YASW.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <QtGui/QApplication>
+#include <QApplication>
 #include "mainwindow.h"
-
-// Cross-compile for windows with mxe, some library have to be loaded explicitly as this is a static build
-// Thanks to Charles N. Burns, http://www.formortals.com/how-to-statically-link-qt-4/ for the help
-#ifdef STATIC
-#include <QtPlugin>
-Q_IMPORT_PLUGIN(qsvg)
-#endif
 
 int main(int argc, char *argv[])
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -16,13 +16,17 @@
  * You should have received a copy of the GNU General Public License
  * along with YASW.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #include "filtercontainer.h"
-#include <QDebug>
 #include "rotation.h"
 #include "dekeystoning.h"
 #include "cropping.h"
-#include "scaling.h"
+#include "scalefilter.h"
+#include "colorcorrection.h"
+#include "layoutfilter.h"
+
 #include <QPrinter>
+#include <QDebug>
 
 /** \class FilterContainer
     \brief A customised QTabWidget to display the different filters.
@@ -37,8 +41,6 @@
 FilterContainer::FilterContainer( QWidget * parent)
     : QTabWidget(parent)
 {
-    oldIndex = -1;
-
     // initialise the filters
     Rotation *rotationFilter = new Rotation(this);
     tabToFilter.append(rotationFilter);
@@ -47,15 +49,45 @@ FilterContainer::FilterContainer( QWidget * parent)
     Dekeystoning *dekeystoningFilter = new Dekeystoning(this);
     tabToFilter.append(dekeystoningFilter);
     addTab(dekeystoningFilter->getWidget(), dekeystoningFilter->getName());
+    /* connect the filter to previous filter so it gets changes automaticaly */
+    connect(rotationFilter, SIGNAL(parameterChanged()),
+            dekeystoningFilter, SLOT(inputImageChanged()));
+    dekeystoningFilter->setPreviousFilter(rotationFilter);
 
     Cropping *croppingFilter = new Cropping(this);
     tabToFilter.append(croppingFilter);
     addTab(croppingFilter->getWidget(), croppingFilter->getName());
+    /* connect the filter to previous filter so it gets changes automaticaly */
+    connect(dekeystoningFilter, SIGNAL(parameterChanged()),
+            croppingFilter, SLOT(inputImageChanged()));
+    croppingFilter->setPreviousFilter(dekeystoningFilter);
 
-    scalingFilter = new Scaling(this);
-    tabToFilter.append(scalingFilter);
-    addTab(scalingFilter->getWidget(), scalingFilter->getName());
+    ScaleFilter *scaleFilter = new ScaleFilter(this);
+    tabToFilter.append(scaleFilter);
+    addTab(scaleFilter->getWidget(), scaleFilter->getName());
+    /* connect the filter to previous filter so it gets changes automaticaly */
+    scaleFilter->setPreviousFilter(croppingFilter);
+    connect(croppingFilter, SIGNAL(parameterChanged()),
+            scaleFilter, SLOT(inputImageChanged()));
 
+    LayoutFilter *layoutFilter = new LayoutFilter(this);
+    tabToFilter.append(layoutFilter);
+    addTab(layoutFilter->getWidget(), layoutFilter->getName());
+    /* connect the filter to previous filter so it gets changes automaticaly */
+    layoutFilter->setPreviousFilter(scaleFilter);
+    connect(scaleFilter, SIGNAL(parameterChanged()),
+            layoutFilter, SLOT(inputImageChanged()));
+
+// Deactivation Color Corection for release 0.6: this ist not good enought for a release.
+//    ColorCorrection *colorCorrection = new ColorCorrection(this);
+//    tabToFilter.append(colorCorrection);
+//    addTab(colorCorrection->getWidget(), colorCorrection->getName());
+//    /* connect the filter to previous filter so it gets changes automaticaly */
+//    colorCorrection->setPreviousFilter(layoutFilter);
+//    connect(layoutFilter, SIGNAL(parameterChanged()),
+//            colorCorrection, SLOT(inputImageChanged()));
+
+    // get informed when a tab changed
     connect(this, SIGNAL(currentChanged(int)),
             this, SLOT(tabChanged(int)));
 }
@@ -69,18 +101,15 @@ FilterContainer::~FilterContainer()
     tabToFilter.clear();
 }
 
-/** \brief Sets the image to be worked on.
-    NOTE: For the shake of perfomance, a downscale of the pixmap would be nice, BUT
-    this means every operation should be recomputed when working on the original image.
-    For now, The downscaling ist disabled, this is a feature to think about later when yasw
-    is functional an needs performance tuning.
-  */
+/* Sets the image to be worked on. */
 void FilterContainer::setImage(QPixmap pixmap)
 {
-    // Downscale the Pixmap to have better performance disabled (see comment)
-    //tabToFilter[0]->setImage(pixmap.scaledToHeight(1000));
+    // Settings the image on the fist filter results in recalculating the image for all filters,
+    // as the each filter emits a parameterChanged signal, which is recieved by the next filter.
     tabToFilter[0]->setImage(pixmap);
-    updateCurrentTabPixmap();
+
+    int currentTab = std::min (tabToFilter.size(), currentIndex());
+    tabToFilter[currentTab]->refresh();
 }
 
 void FilterContainer::setSelectionColor(QColor color)
@@ -93,59 +122,21 @@ void FilterContainer::setBackgroundColor(QColor color)
     emit(backgroundColorChanged(color));
 }
 
+void FilterContainer::setDisplayUnit(QString unit)
+{
+    emit(displayUnitChanged(unit));
+}
+
+void FilterContainer::setDPI(int dpi)
+{
+    emit(dpiChanged(dpi));
+}
+
 void FilterContainer::tabChanged(int index)
 {
-    if (oldIndex >= 0) { // if there were no old Index, we have nothing to update
-        updateCurrentTabPixmap(oldIndex); // we do not need to update Tabs before oldIndex
-        emit filterChanged(tabToFilter[oldIndex]->getIdentifier());
-    }
-    oldIndex = index;
-}
-
-
-/* \brief Compute resulting image in Tabs
-    If no arguments are given, all tabs (Filter)will be computed.
-    Tabs are counted from 0;
- */
-void FilterContainer::updatePixmapInTabs(int beginTab, int endTab)
-{
-    int realEndTab;
-    int i;
-
-    realEndTab = endTab;
-    if (endTab == -1)
-        realEndTab = tabToFilter.size() - 1;
-    if (beginTab < 1) // tab 0 is updated when setting the Pixmap
-        beginTab = 1;
-
-    for (i = beginTab; i <= realEndTab; i++) {
-        tabToFilter[i]->setImage(tabToFilter[i-1]->getFilteredImage());
-    }
-}
-
-/*! \brief Ensure the current Filter works with the latest Pixmap.
-
-    Lets the previous tabs (filters) recalculate their Pixmap so that current Tab
-    gets the latest filtered Pixmap.
-
-    // NOTE: This could be a performance issue, caching may be a solution.
-
-*/
-void FilterContainer::updateCurrentTabPixmap(int fromIndex)
-{
-//    int i;
     int currentTab = std::min (tabToFilter.size(), currentIndex());
-
-    if (currentTab <= 0)    //either no tab (-1) or first tab (0)
-        return;
-
-    if (fromIndex < 1)      //no update of tab 0
-        fromIndex = 1;
-
-    if (fromIndex > currentTab) //no update of tab further current Tab
-        fromIndex = currentTab;
-
-    updatePixmapInTabs(fromIndex, currentTab);
+    tabToFilter[currentTab]->refresh();
+    oldIndex = index;
 }
 
 /*! \brief Get settings from the filters.
@@ -190,6 +181,45 @@ void FilterContainer::setSettings(QMap<QString, QVariant> settings)
             filter->setSettings(QMap<QString, QVariant>());
         }
     }
+
+    int currentTab = std::min (tabToFilter.size(), currentIndex());
+    tabToFilter[currentTab]->refresh();
+}
+
+/* Fills the parent with filter DomEmelents and ther parameters
+   We have to provide the parameters as they are stored in the calling Class (ImageTableWidget)
+   This function is called when serializing the settings into an XML file.
+ */
+void FilterContainer::settings2Dom(QDomDocument &doc, QDomElement &imageElement, QMap<QString, QVariant> settings)
+{
+    BaseFilter *filter;
+
+    foreach (filter, tabToFilter) {
+        if (settings.contains(filter->getIdentifier())) {
+            filter->settings2Dom(doc, imageElement, settings[filter->getIdentifier()].toMap());
+        }
+    }
+}
+
+// Transforms the subtags from <image> into filter settings QMap.
+// NOTE: It might be interesting to get ride of the QMap and only use DOM for the whole Settings.
+QMap<QString, QVariant> FilterContainer::dom2Settings(QDomElement &imageElement)
+{
+    QDomElement filterElement;
+    BaseFilter *filter;
+    QMap<QString, QVariant> settings;
+
+    filterElement = imageElement.firstChildElement();
+
+    while (!filterElement.isNull()) {
+        foreach (filter, tabToFilter) {
+            if (filterElement.tagName() == filter->getIdentifier()) {
+                settings[filter->getIdentifier()] = filter->dom2Settings(filterElement);
+            }
+        }
+        filterElement = filterElement.nextSiblingElement();
+    }
+    return settings;
 }
 
 /** \brief Compute and return the resulting image above all filter
@@ -198,28 +228,7 @@ QPixmap FilterContainer::getResultImage()
 {
     int maxTab = tabToFilter.size() - 1;
 
-    updatePixmapInTabs(oldIndex);
-
-    return tabToFilter[maxTab]->getFilteredImage();
-}
-
-/** \brief returns the Size of the current image.
-
-    \returns QMap<QString, QVariant>; keys are size (QSize), and
-        unit (enum QPrinter::Unit)
-*/
-QMap<QString, QVariant> FilterContainer::getPageSize()
-{
-    QMap<QString, QVariant> imageSize;
-    qreal width, height;
-
-    width = scalingFilter->pageMilimeterWidth();
-    height = scalingFilter->pageMilimeterHeight();
-
-    imageSize["unit"] = QPrinter::Millimeter;
-    imageSize["size"] = QSize(width, height);
-
-    return imageSize;
+    return tabToFilter[maxTab]->getOutputImage();
 }
 
 /** \brief Returns the identifiert of the current filter */

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -20,13 +20,10 @@
 #include <QWheelEvent>
 #include <math.h>
 #include <QDebug>
-#include <QTransform>
-
 
 BaseFilterGraphicsView::BaseFilterGraphicsView(QWidget *parent) : QGraphicsView(parent)
 {
     scene = new QGraphicsScene();
-//    scene->setSceneRect(0, 0, 110, 110);
     setScene(scene);
 
     pixmapItem = new QGraphicsPixmapItem();
@@ -35,10 +32,10 @@ BaseFilterGraphicsView::BaseFilterGraphicsView(QWidget *parent) : QGraphicsView(
 
 BaseFilterGraphicsView::~BaseFilterGraphicsView()
 {
-    delete scene; // this includes all items in the scene.
+    delete scene; // this includes all items in the scene so pixmapItem must not be explicitly deleted.
 }
 
-//FIXME: add another possibility to zoom (buttons, ctrl+-..).
+//TODO: add another possibility to zoom (buttons, ctrl+-..).
 void
 BaseFilterGraphicsView::wheelEvent(QWheelEvent *event)
 {
@@ -47,7 +44,12 @@ BaseFilterGraphicsView::wheelEvent(QWheelEvent *event)
         int numSteps = numDegrees / 15;
         double factor = pow(1.125, numSteps);
         scale(factor, factor);
-    } else {
+    }
+    // If one would want to scroll horizintaly with Shift instead of Alt (Qt Default),
+    // else if (event->modifiers().testFlag(Qt::ShiftModifier))
+    // We should create a new Event with a changed modifier Qt::AltModifier
+    // But this is Qt Default, so we stay by Qt Default (Alt+Scroll) for now.
+    else {
         QGraphicsView::wheelEvent(event);
     }
 }

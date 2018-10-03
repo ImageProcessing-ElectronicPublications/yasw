@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Robert Chéramy (robert@cheramy.net)
+ * Copyright (C) 2012-2014 Robert Chéramy (robert@cheramy.net)
  *
  * This file is part of YASW (Yet Another Scan Wizard).
  *
@@ -22,6 +22,7 @@
 
 #include <QWidget>
 #include <QTableWidgetItem>
+#include <QtXml/QDomDocument>
 #include "filtercontainer.h"
 
 namespace Ui {
@@ -36,11 +37,13 @@ public:
     explicit ImageTableWidget(QWidget *parent = 0);
     ~ImageTableWidget();
     void setFilterContainer(FilterContainer *container);
-    QMap<QString, QVariant> getSettings();
-    void setSettings(QMap<QString, QVariant> settings);
+    // save YASW into XML
+    void saveProjectParameters(QDomDocument &doc, QDomElement &parent);
+    // load XML int YASW
+    bool loadProjectParameters(QDomElement &rootElement);
     void clear();
     void exportToFolder(QString folder);
-    void exportToPdf(QString pdfFile);
+    void exportToPdf(QString pdfFile, int DPI);
 
 public slots:
     void currentItemChanged(QTableWidgetItem *newItem, QTableWidgetItem *previousItem);
@@ -49,14 +52,12 @@ public slots:
     void imageUp();
     void imageDown();
     void removeSelected();
-    void filterChanged(QString oldFilterID);
     void moveImageLeft();
     void moveImageRight();
     void selectPreviousImage();
     void selectNextImage();
     void selectRightImage();
     void selectLeftImage();
-
 
 private:
     Ui::ImageTableWidget *ui;
@@ -77,11 +78,10 @@ private:
     QTableWidgetItem * takeItem(int row, int side);
     void insertItem(QTableWidgetItem * item, int row, int side);
 
-
-
-signals:
-    void pixmapChanged (QPixmap newPixmap);
-
+private slots:
+    void on_btnPropagateFollowingSameSide_clicked();
+    void on_btnPropagateAllSameSide_clicked();
+    void on_btnPropagateAll_clicked();
 };
 
 #endif // IMAGETABLEWIDGET_H
