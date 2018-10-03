@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg id="svg11300" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" height="48px" width="48px" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/">
+ <defs id="defs3">
+  <radialGradient id="radialGradient1444" gradientUnits="userSpaceOnUse" cy="36.421" cx="24.837" gradientTransform="matrix(1 0 0 .53672 1.6147e-15 16.873)" r="15.645">
+   <stop id="stop8664" offset="0"/>
+   <stop id="stop8666" stop-opacity="0" offset="1"/>
+  </radialGradient>
+  <radialGradient id="radialGradient1469" gradientUnits="userSpaceOnUse" cy="20.494" cx="35.293" gradientTransform="matrix(1.8719e-16 -.84302 1.0202 2.2652e-16 .60644 42.586)" r="16.956">
+   <stop id="stop1444" stop-color="#73d216" offset="0"/>
+   <stop id="stop1446" stop-color="#4e9a06" offset="1"/>
+  </radialGradient>
+  <radialGradient id="radialGradient1471" gradientUnits="userSpaceOnUse" cy="1.535" cx="15.987" gradientTransform="matrix(3.7494e-16 -2.0467 -1.5576 -2.8534e-16 44.116 66.933)" r="17.171">
+   <stop id="stop8652" stop-color="#fff" offset="0"/>
+   <stop id="stop8654" stop-color="#fff" stop-opacity="0" offset="1"/>
+  </radialGradient>
+ </defs>
+ <metadata id="metadata4">
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Jakub Steiner</dc:title>
+     </cc:Agent>
+    </dc:creator>
+    <dc:source>http://jimmac.musichall.cz</dc:source>
+    <cc:license rdf:resource="http://creativecommons.org/licenses/publicdomain/"/>
+    <dc:title>Go Down</dc:title>
+    <dc:subject>
+     <rdf:Bag>
+      <rdf:li>go</rdf:li>
+      <rdf:li>lower</rdf:li>
+      <rdf:li>down</rdf:li>
+      <rdf:li>arrow</rdf:li>
+      <rdf:li>pointer</rdf:li>
+      <rdf:li>&gt;</rdf:li>
+     </rdf:Bag>
+    </dc:subject>
+    <dc:contributor>
+     <cc:Agent>
+      <dc:title>Andreas Nilsson</dc:title>
+     </cc:Agent>
+    </dc:contributor>
+   </cc:Work>
+   <cc:License rdf:about="http://creativecommons.org/licenses/publicdomain/">
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+   </cc:License>
+  </rdf:RDF>
+ </metadata>
+ <g id="layer1">
+  <path id="path8660" opacity=".20455" style="color:#000000" d="m40.482 36.421a15.645 8.3969 0 1 1 -31.29 0 15.645 8.3969 0 1 1 31.29 0z" fill-rule="evenodd" transform="matrix(1.2145 0 0 .59546 -6.1638 16.313)" fill="url(#radialGradient1444)"/>
+  <g id="g1464" transform="matrix(-1 0 0 -1 47.029 43.999)">
+   <path id="path8643" stroke-linejoin="round" style="color:#000000" d="m14.519 38.5l18.005-0.004v-12.992l7.996-0.007-17.145-19.998-16.846 19.998 7.995 0.004-0.005 12.999z" fill-rule="evenodd" stroke="#3a7304" stroke-linecap="round" stroke-miterlimit="10" fill="url(#radialGradient1469)"/>
+   <path id="path8645" opacity=".50802" style="color:#000000" d="m39.43 24.993l-7.407 0.012 0.003 12.993-15.378-0.009c0.77-18.341 10.722-10.993 15.381-21.647l7.401 8.651z" fill-rule="evenodd" fill="url(#radialGradient1471)"/>
+   <path id="path8658" opacity=".48128" style="color:#000000" d="m15.521 37.496l16.001 0.004v-12.993l6.817-0.016-14.954-17.452-14.707 17.457 6.84 0.005 0.003 12.995z" stroke="#fff" stroke-miterlimit="10" fill="none"/>
+  </g>
+ </g>
+</svg>
