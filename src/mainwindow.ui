@@ -81,7 +81,7 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
      <x>0</x>
      <y>0</y>
      <width>1010</width>
-     <height>25</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -92,12 +92,29 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
     <addaction name="action_Save"/>
     <addaction name="action_SaveAs"/>
     <addaction name="separator"/>
-    <addaction name="action_Export"/>
-    <addaction name="separator"/>
     <addaction name="action_Close"/>
     <addaction name="action_Quit"/>
    </widget>
+   <widget class="QMenu" name="menu_Export">
+    <property name="title">
+     <string>&amp;Export to</string>
+    </property>
+    <addaction name="actionTo_Jpeg"/>
+    <addaction name="actionTo_PDF"/>
+   </widget>
+   <widget class="QMenu" name="menu_Image">
+    <property name="title">
+     <string>&amp;Image</string>
+    </property>
+    <addaction name="actionAddImage"/>
+    <addaction name="actionAdd_empty_image"/>
+    <addaction name="actionRemove_selected"/>
+    <addaction name="actionMoveImageUp"/>
+    <addaction name="actionMoveImageDown"/>
+   </widget>
    <addaction name="menu_File"/>
+   <addaction name="menu_Image"/>
+   <addaction name="menu_Export"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="action_Quit">
@@ -125,9 +142,63 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
     <string>&amp;Close</string>
    </property>
   </action>
-  <action name="action_Export">
+  <action name="actionTo_Jpeg">
    <property name="text">
-    <string>&amp;Export</string>
+    <string>&amp;JPEG</string>
+   </property>
+  </action>
+  <action name="actionTo_PDF">
+   <property name="text">
+    <string>&amp;PDF</string>
+   </property>
+  </action>
+  <action name="actionAddImage">
+   <property name="text">
+    <string>&amp;Add Image</string>
+   </property>
+   <property name="toolTip">
+    <string>Insert an image at current position (when no selection, defaults to left)</string>
+   </property>
+   <property name="shortcut">
+    <string>+</string>
+   </property>
+  </action>
+  <action name="actionRemove_selected">
+   <property name="text">
+    <string>&amp;Remove selected image</string>
+   </property>
+   <property name="shortcut">
+    <string>Del</string>
+   </property>
+  </action>
+  <action name="actionMoveImageUp">
+   <property name="text">
+    <string>Move image &amp;up</string>
+   </property>
+   <property name="toolTip">
+    <string>Move image up</string>
+   </property>
+   <property name="shortcut">
+    <string>PgUp</string>
+   </property>
+  </action>
+  <action name="actionMoveImageDown">
+   <property name="text">
+    <string>Move image &amp;down</string>
+   </property>
+   <property name="toolTip">
+    <string>Move image down</string>
+   </property>
+   <property name="shortcut">
+    <string>PgDown</string>
+   </property>
+  </action>
+  <action name="actionAdd_empty_image">
+   <property name="text">
+    <string>Add &amp;empty image</string>
+   </property>
+   <property name="toolTip">
+    <string>Adds an empty image at selection. If there is default selection, inserts left</string>
    </property>
   </action>
  </widget>
@@ -144,6 +215,13 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
    <extends>QWidget</extends>
    <header>imagetablewidget.h</header>
    <container>1</container>
+   <slots>
+    <slot>removeSelected()</slot>
+    <slot>imageUp()</slot>
+    <slot>imageDown()</slot>
+    <slot>insertImage()</slot>
+    <slot>insertEmptyImage()</slot>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -164,9 +242,123 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionTo_Jpeg</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>exportToJpeg()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>504</x>
+     <y>290</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionTo_PDF</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>exportToPdf()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>504</x>
+     <y>290</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAddImage</sender>
+   <signal>triggered()</signal>
+   <receiver>imageList</receiver>
+   <slot>insertImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>127</x>
+     <y>293</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionRemove_selected</sender>
+   <signal>triggered()</signal>
+   <receiver>imageList</receiver>
+   <slot>removeSelected()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>127</x>
+     <y>293</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionMoveImageUp</sender>
+   <signal>triggered()</signal>
+   <receiver>imageList</receiver>
+   <slot>imageUp()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>127</x>
+     <y>293</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionMoveImageDown</sender>
+   <signal>triggered()</signal>
+   <receiver>imageList</receiver>
+   <slot>imageDown()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>127</x>
+     <y>293</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAdd_empty_image</sender>
+   <signal>triggered()</signal>
+   <receiver>imageList</receiver>
+   <slot>insertEmptyImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>127</x>
+     <y>293</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>ImageSelected(QModelIndex)</slot>
   <slot>slotTransform()</slot>
+  <slot>exportToJpeg()</slot>
+  <slot>exportToPdf()</slot>
  </slots>
 </ui>

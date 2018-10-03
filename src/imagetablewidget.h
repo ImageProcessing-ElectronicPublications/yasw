@@ -40,28 +40,26 @@ public:
     void setSettings(QMap<QString, QVariant> settings);
     void clear();
     void exportToFolder(QString folder);
+    void exportToPdf(QString pdfFile);
+
 
 public slots:
     void currentItemChanged(QTableWidgetItem *newItem, QTableWidgetItem *previousItem);
 
 private slots:
-    void on_addLeft_clicked();
-    void on_addEmptyLeft_clicked();
-    void on_addRight_clicked();
-    void on_addEmptyRight_clicked();
-    void on_upLeft_clicked();
-    void on_upRight_clicked();
-    void on_downRight_clicked();
-    void on_downLeft_clicked();
-    void on_remove_clicked();
+    void insertImage();
+    void insertEmptyImage();
+    void imageUp();
+    void imageDown();
+    void removeSelected();
 
 private:
     Ui::ImageTableWidget *ui;
     enum ImageSide { leftSide, rightSide };
     FilterContainer *filterContainer;
-    QString lastDir;
+    QString lastDir = "";
     // stores the last row for left and right images
-    int nextRow[2];
+    int itemCount[2];
 
     void addImage(QString fileName, enum ImageSide side,
                   QMap<QString, QVariant> settings = QMap<QString, QVariant> ());
@@ -69,8 +67,7 @@ private:
                               ImageFileName
                             };
     void addClicked(ImageTableWidget::ImageSide side);
-    void upClicked(ImageTableWidget::ImageSide side);
-    void downClicked(ImageTableWidget::ImageSide side);
+
 
 
 signals:

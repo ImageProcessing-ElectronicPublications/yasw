@@ -26,8 +26,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-//FIXME: Performace optimisation (memory usage...)
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -157,7 +155,7 @@ void MainWindow::on_action_Open_triggered()
 }
 
 
-void MainWindow::on_action_Export_triggered()
+void MainWindow::exportToJpeg()
 {
     QString exportFolder = QFileDialog::getExistingDirectory(this,
                 tr("Choose folder for export"),
@@ -167,12 +165,30 @@ void MainWindow::on_action_Export_triggered()
     if (exportFolder.length() == 0)
         return;
 
-    //TODO: save focus of current item or use an independent method to generate exported images.
     ui->imageList->exportToFolder(exportFolder);
 
     QMessageBox::information(this,
                 tr("Project exported"),
                 tr("The project was exported to folder %1").arg(exportFolder)
+                             );
+}
+
+void MainWindow::exportToPdf()
+{
+    QString exportFile = QFileDialog::getSaveFileName(this, tr("Export to PDF"),
+                               // FIXME: use project name
+                               // FIXME: save last path
+                               QDir::currentPath() + "/file.pdf",
+                               tr("PDF Files (*.pdf);;All files (* *.*"));
+
+    if (exportFile.length() == 0)
+        return;
+
+    ui->imageList->exportToPdf(exportFile);
+
+    QMessageBox::information(this,
+                tr("Project exported"),
+                tr("The project was exported to file %1").arg(exportFile)
                 );
 }
 

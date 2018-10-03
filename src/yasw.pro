@@ -18,7 +18,6 @@
 # Disable warning about non-static data member initializers.
 # No idea if this works on other platforms, old platforms will probably do not support it.
 QMAKE_CXXFLAGS += -std=c++11
-
 TARGET = yasw
 TEMPLATE = app
 SOURCES += main.cpp \
@@ -37,7 +36,6 @@ SOURCES += main.cpp \
     filter/cropping/croppingwidget.cpp \
     filter/cropping/croppinggraphicsview.cpp \
     filter/cropping/croppingcorner.cpp \
-    imagelistwidget.cpp \
     filter/dekeystoning/dekeystoningline.cpp \
     filter/dekeystoning/dekeystoningcorner.cpp \
     imagetablewidget.cpp
@@ -56,7 +54,6 @@ HEADERS += mainwindow.h \
     filter/cropping/croppingwidget.h \
     filter/cropping/croppinggraphicsview.h \
     filter/cropping/croppingcorner.h \
-    imagelistwidget.h \
     filter/dekeystoning/dekeystoningline.h \
     filter/dekeystoning/dekeystoningcorner.h \
     imagetablewidget.h
@@ -65,7 +62,6 @@ FORMS += mainwindow.ui \
     filter/dekeystoning/dekeystoningwidget.ui \
     filter/rotation/rotationwidget.ui \
     filter/cropping/croppingwidget.ui \
-    imagelistwidget.ui \
     imagetablewidget.ui
 INCLUDEPATH += filter \
     filter/dekeystoning \
@@ -77,3 +73,12 @@ OTHER_FILES += \
     ../documentation/doxygen-mainpage.txt \
     ../changelog.txt \
     ../install.txt
+
+static {
+# Everything below takes effect with CONFIG += static
+# thanks to Charles N. Burns, http://www.formortals.com/how-to-statically-link-qt-4/ for the help
+    QT += svg
+    QTPLUGIN += qsvg
+    DEFINES += STATIC
+    message ("This is a static build")
+}

@@ -24,7 +24,7 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
     <x>0</x>
     <y>0</y>
     <width>238</width>
-    <height>416</height>
+    <height>504</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -48,8 +48,8 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0">
     <widget class="QTableWidget" name="images">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
@@ -70,7 +70,7 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
       </size>
      </property>
      <property name="editTriggers">
-      <set>QAbstractItemView::AnyKeyPressed</set>
+      <set>QAbstractItemView::NoEditTriggers</set>
      </property>
      <property name="dragEnabled">
       <bool>false</bool>
@@ -91,9 +91,6 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
       </size>
      </property>
      <property name="showGrid">
-      <bool>true</bool>
-     </property>
-     <property name="cornerButtonEnabled">
       <bool>true</bool>
      </property>
      <property name="rowCount">
@@ -118,55 +115,51 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
      <column/>
     </widget>
    </item>
-   <item>
+   <item row="1" column="0">
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
-      <widget class="QToolButton" name="addLeft">
+      <widget class="QToolButton" name="add">
+       <property name="toolTip">
+        <string>Insert an image on the left</string>
+       </property>
        <property name="text">
-        <string/>
+        <string>+</string>
        </property>
        <property name="icon">
-        <iconset resource="icons/icons.qrc">
+        <iconset>
          <normaloff>:/icons/tango-icon-theme/list-add.svg</normaloff>:/icons/tango-icon-theme/list-add.svg</iconset>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QToolButton" name="upLeft">
+      <widget class="QToolButton" name="addEmpty">
+       <property name="toolTip">
+        <string>Add an empty image to the left</string>
+       </property>
        <property name="text">
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="icons/icons.qrc">
-         <normaloff>:/icons/tango-icon-theme/go-up.svg</normaloff>:/icons/tango-icon-theme/go-up.svg</iconset>
+        <iconset>
+         <normaloff>:/icons/tango-icon-theme/document-new.svg</normaloff>:/icons/tango-icon-theme/document-new.svg</iconset>
        </property>
       </widget>
      </item>
      <item row="0" column="2">
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+      <widget class="QToolButton" name="up">
+       <property name="toolTip">
+        <string>Move the selected image up</string>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>13</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="0" column="3">
-      <widget class="QToolButton" name="remove">
        <property name="text">
-        <string/>
+        <string>up</string>
        </property>
        <property name="icon">
-        <iconset resource="icons/icons.qrc">
-         <normaloff>:/icons/tango-icon-theme/list-remove.svg</normaloff>:/icons/tango-icon-theme/list-remove.svg</iconset>
+        <iconset>
+         <normaloff>:/icons/tango-icon-theme/go-up.svg</normaloff>:/icons/tango-icon-theme/go-up.svg</iconset>
        </property>
       </widget>
      </item>
-     <item row="0" column="4">
+     <item row="0" column="3">
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -179,89 +172,51 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
        </property>
       </spacer>
      </item>
-     <item row="0" column="5">
-      <widget class="QToolButton" name="addRight">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="icons/icons.qrc">
-         <normaloff>:/icons/tango-icon-theme/list-add.svg</normaloff>:/icons/tango-icon-theme/list-add.svg</iconset>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="6">
-      <widget class="QToolButton" name="upRight">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="icons/icons.qrc">
-         <normaloff>:/icons/tango-icon-theme/go-up.svg</normaloff>:/icons/tango-icon-theme/go-up.svg</iconset>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="0">
-      <widget class="QToolButton" name="addEmptyLeft">
+      <widget class="QToolButton" name="remove">
+       <property name="toolTip">
+        <string>remove selected image</string>
+       </property>
        <property name="text">
-        <string/>
+        <string>remove</string>
        </property>
        <property name="icon">
-        <iconset resource="icons/icons.qrc">
-         <normaloff>:/icons/tango-icon-theme/document-new.svg</normaloff>:/icons/tango-icon-theme/document-new.svg</iconset>
+        <iconset>
+         <normaloff>:/icons/tango-icon-theme/list-remove.svg</normaloff>:/icons/tango-icon-theme/list-remove.svg</iconset>
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QToolButton" name="downLeft">
+     <item row="1" column="2">
+      <widget class="QToolButton" name="down">
+       <property name="toolTip">
+        <string>Move the selected image down</string>
+       </property>
        <property name="text">
-        <string/>
+        <string>down</string>
        </property>
        <property name="icon">
-        <iconset resource="icons/icons.qrc">
-         <normaloff>:/icons/tango-icon-theme/go-down.svg</normaloff>:/icons/tango-icon-theme/go-down.svg</iconset>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="5">
-      <widget class="QToolButton" name="addEmptyRight">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="icons/icons.qrc">
-         <normaloff>:/icons/tango-icon-theme/document-new.svg</normaloff>:/icons/tango-icon-theme/document-new.svg</iconset>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="6">
-      <widget class="QToolButton" name="downRight">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="icons/icons.qrc">
+        <iconset>
          <normaloff>:/icons/tango-icon-theme/go-down.svg</normaloff>:/icons/tango-icon-theme/go-down.svg</iconset>
        </property>
       </widget>
      </item>
     </layout>
    </item>
-   <item>
+   <item row="2" column="0">
     <widget class="Line" name="line">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
-   <item>
+   <item row="3" column="0">
     <widget class="QLabel" name="settingPolicyLabel">
      <property name="text">
       <string>Propage image settings</string>
      </property>
     </widget>
    </item>
-   <item>
+   <item row="4" column="0">
     <widget class="QComboBox" name="settingPolicy">
      <item>
       <property name="text">
@@ -282,8 +237,94 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="icons/icons.qrc"/>
- </resources>
- <connections/>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>add</sender>
+   <signal>clicked()</signal>
+   <receiver>ImageTableWidget</receiver>
+   <slot>insertImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>32</x>
+     <y>375</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>118</x>
+     <y>207</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>remove</sender>
+   <signal>clicked()</signal>
+   <receiver>ImageTableWidget</receiver>
+   <slot>removeSelected()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>131</x>
+     <y>375</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>169</x>
+     <y>250</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>up</sender>
+   <signal>clicked()</signal>
+   <receiver>ImageTableWidget</receiver>
+   <slot>imageUp()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>112</x>
+     <y>393</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>168</x>
+     <y>391</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>down</sender>
+   <signal>clicked()</signal>
+   <receiver>ImageTableWidget</receiver>
+   <slot>imageDown()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>123</x>
+     <y>421</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>148</x>
+     <y>430</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addEmpty</sender>
+   <signal>clicked()</signal>
+   <receiver>ImageTableWidget</receiver>
+   <slot>insertEmptyImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>17</x>
+     <y>392</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>104</x>
+     <y>167</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>removeSelected()</slot>
+  <slot>imageUp()</slot>
+  <slot>imageDown()</slot>
+  <slot>insertImage()</slot>
+  <slot>insertEmptyImage()</slot>
+ </slots>
 </ui>
