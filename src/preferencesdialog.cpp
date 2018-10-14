@@ -42,6 +42,9 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     dpiValidator->setBottom(Constants::MIN_DPI);
     ui->dpi->setValidator(dpiValidator);
 
+    ui->imtype->insertItems(0, Constants::displayImageType);
+    setImageType("JPEG");
+
     connect(ui->dpi->lineEdit(), SIGNAL(editingFinished()),
             this, SLOT(dpiFormChanged()));
 
@@ -73,6 +76,9 @@ void PreferencesDialog::setSettings(QSettings *newSettings)
 
     QString unit = settings->value("displayUnit").toString();
     setDisplayUnit(unit);
+
+    QString imtype = settings->value("displayImageType").toString();
+    setImageType(imtype);
 }
 
 QString PreferencesDialog::displayUnit()
@@ -100,6 +106,11 @@ void PreferencesDialog::setDPI(int newDpi)
 int PreferencesDialog::DPI()
 {
     return dpi;
+}
+
+QString PreferencesDialog::displayImageType()
+{
+    return ui->imtype->currentText();
 }
 
 void PreferencesDialog::saveProjectParameters(QDomDocument &doc, QDomElement &rootElement)
@@ -190,6 +201,18 @@ void PreferencesDialog::setDisplayUnit(QString unit)
     }
 }
 
+void PreferencesDialog::setImageType(QString imtype)
+{
+    if (!Constants::displayImageType.contains(imtype)) // unit unknown? Do nothing.
+        return;
+
+    ui->unit->setCurrentIndex(Constants::displayImageType.indexOf(imtype));
+
+    if (settings) {
+        settings->setValue("displayImageType", imtype);
+    }
+}
+
 void PreferencesDialog::on_backgroundColorButton_clicked()
 {
     QColor color;
@@ -205,6 +228,15 @@ void PreferencesDialog::on_unit_currentIndexChanged(const QString &unit)
     }
 
     emit(displayUnitChanged(unit));
+}
+
+void PreferencesDialog::on_imtype_currentIndexChanged(const QString &imtype)
+{
+    if (settings) {
+        settings->setValue("displayImageType", imtype);
+    }
+
+    emit(displayImageTypeChanged(imtype));
 }
 
 void PreferencesDialog::on_dpi_editTextChanged(const QString &stringDPI)

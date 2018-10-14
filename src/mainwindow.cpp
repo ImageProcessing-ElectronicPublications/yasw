@@ -274,7 +274,7 @@ void MainWindow::exportToJpeg()
     if (exportFolder.length() == 0)
         return;
 
-    ui->imageList->exportToFolder(exportFolder);
+    ui->imageList->exportToFolder(exportFolder, preferencesDialog->displayImageType());
 }
 
 void MainWindow::exportToPdf()

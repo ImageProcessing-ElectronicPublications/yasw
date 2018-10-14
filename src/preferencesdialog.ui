@@ -142,6 +142,25 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="title">
+      <string>Format Images</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QLabel" name="labelUnit_3">
+        <property name="text">
+         <string>Type</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="imtype"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -149,7 +168,7 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>161</height>
+       <height>100</height>
       </size>
      </property>
     </spacer>

@@ -41,6 +41,7 @@ public:
     QString displayUnit();
     void setDPI(int newDpi);
     int DPI();
+    QString displayImageType();
 
     // save YASW into XML
     void saveProjectParameters(QDomDocument &doc, QDomElement &rootElement);
@@ -56,12 +57,14 @@ private slots:
     void on_backgroundColorButton_clicked();
     void on_unit_currentIndexChanged(const QString &unit);
     void on_dpi_editTextChanged(const QString &stringDPI);
+    void on_imtype_currentIndexChanged(const QString &imtype);
 
 
 private:
     void setSelectionColor(QColor color);
     void setBackgroundColor(QColor color);
     void setDisplayUnit(QString unit);
+    void setImageType(QString imtype);
 
 
     Ui::PreferencesDialog *ui;
@@ -76,6 +79,7 @@ signals:
     void backgroundColorChanged(QColor color);
     void displayUnitChanged(QString unit);
     void dpiChanged(int dpi);
+    void displayImageTypeChanged(QString imtype);
 };
 
 #endif // PREFERENCESDIALOG_H

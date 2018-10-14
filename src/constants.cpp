@@ -35,6 +35,8 @@ QStringList Constants::horizontalAlignment = QStringList() << "Left"
 QStringList Constants::verticalAlignment = QStringList() << "Top"
                                                   << "Center"
                                                   << "Bottom";
+QStringList Constants::displayImageType = QStringList() << "JPEG"
+                                                  << "PNG";
 
 QRegExp Constants::trailZero = QRegExp("0+$");
 QRegExp Constants::trailDot = QRegExp("\\.$");

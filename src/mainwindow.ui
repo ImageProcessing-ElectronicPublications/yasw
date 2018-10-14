@@ -195,7 +195,7 @@ along with YASW.  If not, see http://www.gnu.org/licenses/.
   </action>
   <action name="actionTo_Jpeg">
    <property name="text">
-    <string>&amp;JPEG</string>
+    <string>&amp;Images</string>
    </property>
   </action>
   <action name="actionTo_PDF">

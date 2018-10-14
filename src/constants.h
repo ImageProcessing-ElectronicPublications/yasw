@@ -31,6 +31,7 @@ class Constants
 public:
     static QStringList displayUnits;
     static QStringList dpiList;
+    static QStringList displayImageType;
     static qreal const milimeterPerInch ; //= 25.4;
 
     static int const MIN_DPI = 10;

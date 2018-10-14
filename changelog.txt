@@ -1,3 +1,6 @@
+20181014; YASW 0.6.1
+ - Select image type in Preferences
+
 20141218; YASW 0.6
  - Progress dialogs for long operations
  - Performance optimisation (calculate only when seen on screen or exporting) & bug fixes

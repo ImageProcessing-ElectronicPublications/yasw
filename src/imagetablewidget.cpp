@@ -134,7 +134,8 @@ void ImageTableWidget::insertImage()
                         // FIXME: scaling down for *.png does not work as good as for jpg
                         // FIXME: export fron png images don not work. Deactiving png for now.
 //                        tr("Images (*.jpg *.png);;All files (* *.*)"));
-                        tr("Images (*.jpg);;All files (* *.*)"));
+//                        tr("Images (*.jpg);;All files (* *.*)"));
+                        tr("Images (*.png *.xpm *.jpg);;All files (* *.*)"));
 
     int progress = 0;
     int numberImages = images.length();
@@ -582,9 +583,10 @@ void ImageTableWidget::clear()
     itemCount[rightSide] = 0;
 }
 
-void ImageTableWidget::exportToFolder(QString folder)
+void ImageTableWidget::exportToFolder(QString folder, QString imtype)
 {
     int row;
+    QString imtypepng = "PNG";
     QTableWidgetItem *currentItem = ui->images->currentItem();
     QPixmap pixmap;
     QString filename;
@@ -594,33 +596,66 @@ void ImageTableWidget::exportToFolder(QString folder)
     QProgressDialog progressDialog(QString("Exporting to folder %2...").arg(folder), "Abort", 0, maxProgress);
     progressDialog.setWindowModality(Qt::WindowModal);
 
-    for (row = 0; row < itemCount[leftSide]; row++) {
-        // Update Process Dialog
-        progressDialog.setValue(progress);
-        progress++;
-        if (progressDialog.wasCanceled()) {
-            ui->images->setCurrentItem(currentItem);
-            return;
+    if (imtype == imtypepng)
+    {
+        for (row = 0; row < itemCount[leftSide]; row++) {
+            // Update Process Dialog
+            progressDialog.setValue(progress);
+            progress++;
+            if (progressDialog.wasCanceled()) {
+                ui->images->setCurrentItem(currentItem);
+                return;
+            }
+            // Export image
+            ui->images->setCurrentCell(row, leftSide);
+            pixmap = filterContainer->getResultImage();
+            filename = QString("%1/image_%2_Left.png").arg(folder).arg(row+1, 3, 10, QChar('0'));
+            pixmap.save(filename);
         }
+        for (row = 0; row < itemCount[rightSide]; row++) {
+            // Update Process Dialog
+            progressDialog.setValue(progress);
+            progress++;
+            if (progressDialog.wasCanceled()) {
+                ui->images->setCurrentItem(currentItem);
+                return;
+            }
         // Export image
-        ui->images->setCurrentCell(row, leftSide);
-        pixmap = filterContainer->getResultImage();
-        filename = QString("%1/image_%2_Left.jpg").arg(folder).arg(row+1, 3, 10, QChar('0'));
-        pixmap.save(filename);
-    }
-    for (row = 0; row < itemCount[rightSide]; row++) {
-        // Update Process Dialog
-        progressDialog.setValue(progress);
-        progress++;
-        if (progressDialog.wasCanceled()) {
-            ui->images->setCurrentItem(currentItem);
-            return;
+            ui->images->setCurrentCell(row, rightSide);
+            pixmap = filterContainer->getResultImage();
+            filename = QString("%1/image_%2_Right.png").arg(folder).arg(row+1, 3, 10, QChar('0'));
+            pixmap.save(filename);
         }
+    }else{
+        for (row = 0; row < itemCount[leftSide]; row++) {
+            // Update Process Dialog
+            progressDialog.setValue(progress);
+            progress++;
+            if (progressDialog.wasCanceled()) {
+                ui->images->setCurrentItem(currentItem);
+                return;
+            }
+            // Export image
+            ui->images->setCurrentCell(row, leftSide);
+            pixmap = filterContainer->getResultImage();
+            filename = QString("%1/image_%2_Left.jpg").arg(folder).arg(row+1, 3, 10, QChar('0'));
+            pixmap.save(filename);
+        }
+        for (row = 0; row < itemCount[rightSide]; row++) {
+            // Update Process Dialog
+            progressDialog.setValue(progress);
+            progress++;
+            if (progressDialog.wasCanceled()) {
+                ui->images->setCurrentItem(currentItem);
+                return;
+            }
         // Export image
-        ui->images->setCurrentCell(row, rightSide);
-        pixmap = filterContainer->getResultImage();
-        filename = QString("%1/image_%2_Right.jpg").arg(folder).arg(row+1, 3, 10, QChar('0'));
-        pixmap.save(filename);
+            ui->images->setCurrentCell(row, rightSide);
+            pixmap = filterContainer->getResultImage();
+            filename = QString("%1/image_%2_Right.jpg").arg(folder).arg(row+1, 3, 10, QChar('0'));
+            pixmap.save(filename);
+        }
+
     }
 
     progressDialog.setValue(maxProgress);

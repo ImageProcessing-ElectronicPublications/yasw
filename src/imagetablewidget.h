@@ -42,7 +42,7 @@ public:
     // load XML int YASW
     bool loadProjectParameters(QDomElement &rootElement);
     void clear();
-    void exportToFolder(QString folder);
+    void exportToFolder(QString folder, QString imtype);
     void exportToPdf(QString pdfFile, int DPI);
 
 public slots:
