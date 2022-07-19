@@ -22,6 +22,7 @@
 #include <QColor>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsView>
+#include <cmath>
 
 class ColorCorrectionGraphicsView : public QGraphicsView
 {
